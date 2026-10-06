@@ -1,0 +1,18 @@
+import type { LiveStats, UsenetStatsOverview, UsenetWindow } from '../api/types';
+import type { Resource } from '../hooks/useData';
+import { providerHealth } from '../lib/health';
+import { speed, percent, count, bytes } from '../lib/format';
+import { Badge, Facts, Empty, Section, Status } from '../components/UI';
+import { Chart } from '../components/Chart';
+import { UsenetWindowPicker } from '../components/UsenetWindowPicker';
+import { usenetWindowLabel } from '../lib/usage';
+export function ProviderDetails({ id, resource, stats, window, changeWindow, loginUrl }: { id:string; resource:Resource<LiveStats>; stats:Resource<UsenetStatsOverview>; window:UsenetWindow; changeWindow:(window:UsenetWindow)=>void; loginUrl:string }) {
+  const live = resource.data?.pool.providers.find(p=>p.id===id);
+  const stat = stats.data?.providers.find(p=>p.id===id);
+  const health=live ? providerHealth(live,stat) : undefined;
+  return <><div className="intro"><h1>{live?.name || stat?.name || stat?.host || 'Provider'}</h1><p>{stat?.host}</p></div><UsenetWindowPicker window={window} change={changeWindow}/><p className="caption">Statistics: {usenetWindowLabel(window).toLowerCase()}.</p><Status resource={resource} loginUrl={loginUrl}/><Status resource={stats} loginUrl={loginUrl}/>{!live && !stat && !resource.loading && !stats.loading ? <Empty title="Provider unavailable">No provider details are available from the received snapshots. Try refreshing.</Empty> : <><Badge state={health?.state || (stat?.enabled===false ? 'disabled' : stat ? stat.live.active > 0 ? 'active' : 'idle' : undefined)}>{stat?.removed ? 'Removed provider' : health?.label || (stat?.enabled===false ? 'Disabled' : stat ? stat.live.active > 0 ? 'Active' : 'Idle' : undefined) || 'Unknown'}</Badge>{health?.warnings.map(w=><p className="caption orange" key={w}>{w}</p>)}{live && <Section title="Live throughput"><div className="card chart-card"><strong className="big-value">{speed(live?.throughput)}</strong><Chart points={resource.samples.flatMap(s=>{const p=s.value.pool.providers.find(p=>p.id===id); return p ? [{at:s.at,value:p.throughput}] : [];})} label="Provider throughput" rate color="green"/></div></Section>}{!live && stat && <p className="caption">{stat.removed ? 'Historical statistics only; this provider was removed from configuration.' : resource.data && !resource.error ? 'Historical statistics only; this provider is not in the live pool.' : 'Current pool membership is unavailable. Showing recorded statistics.'}</p>}<div className="card"><Facts items={[
+    ['Connections in use',live ? `${live.acquired} / ${live.max}` : '—'],['Average throughput',speed(stat?.avgBytesPerSec)],['Articles fetched',count(stat?.articles)],['Bytes fetched',bytes(stat?.bytes)],['Error rate',percent(stat?.errorRate)],['Missing rate',percent(stat?.missRate)],['Average latency',stat?.avgLatencyMs != null ? `${stat.avgLatencyMs.toFixed(0)} ms` : '—'],
+  ]}/><details className="secondary-facts"><summary>More statistics</summary><Facts items={[
+    ['Enabled',stat ? stat.enabled ? 'Yes' : 'No' : '—'],['Backup provider',stat ? stat.isBackup ? 'Yes' : 'No' : live ? live.isBackup ? 'Yes' : 'No' : '—'],['Idle connections',count(live?.idle)],['Queued fetches',count(live?.queued)],['Errors',count(stat?.errors)],['Missing articles',count(stat?.missing)],['Undecodable',count(stat?.undecodable)],['Article share',percent(stat?.articleShare)],['Average article fetch',stat ? `${stat.avgArticleMs.toFixed(0)} ms` : '—'],
+  ]}/></details></div>{live?.lastDialError && <div className="notice error"><p>Last connection error: {live.lastDialError.message}</p></div>}</>}</>;
+}

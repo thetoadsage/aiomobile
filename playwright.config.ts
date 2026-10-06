@@ -1,0 +1,3 @@
+import { defineConfig, devices } from '@playwright/test';
+const fixturePort=Number(process.env.AIOMOBILE_TEST_PORT || 4174);
+export default defineConfig({testDir:'tests/e2e',fullyParallel:false,workers:1,timeout:30000,use:{baseURL:`http://127.0.0.1:${fixturePort}`,...devices['iPhone 13'],defaultBrowserType:'chromium',serviceWorkers:'block',screenshot:'only-on-failure',trace:'retain-on-failure'},projects:[{name:'chromium',use:{browserName:'chromium'}},{name:'webkit',use:{browserName:'webkit'}}],webServer:{command:'node scripts/test-server.ts',port:fixturePort,reuseExistingServer:!process.env.CI}});

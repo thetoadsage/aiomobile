@@ -1,0 +1,147 @@
+import { test, expect } from '@playwright/test';
+import { systemMetrics, tasksSnapshot, mediaSummary, mediaLive, librarySnapshot } from '../monitoring-fixtures';
+const health=['system','warnings'];
+test.beforeEach(async({context})=>{await context.request.get('/fixture/login');});
+test('Overview shows truthful system readings, masks warnings, and preserves customization',async({page})=>{
+  await page.goto('/mobile/');
+  const system=page.locator('[data-overview-section="system"]');
+  await expect(system).toContainText('260 MB');
+  await expect(system).toContainText('7.6%');
+  await system.getByText('System details',{exact:true}).click();
+  await expect(system).toContainText('80 GB');
+  await expect(page.locator('[data-overview-section="tasks"]')).toHaveCount(0);
+  const warnings=page.locator('[data-overview-section="warnings"]');
+  await expect(warnings.locator('.warning-row')).toHaveCount(5);
+  await expect(warnings).toContainText('Recent retained logs');
+  await page.getByRole('button',{name:'Customize',exact:true}).click();
+  await page.getByRole('button',{name:'Pin System',exact:true}).click();
+  await expect(page.locator('[data-overview-section]').first()).toHaveAttribute('data-overview-section','system');
+  await page.reload();await expect(page.locator('[data-overview-section]').first()).toHaveAttribute('data-overview-section','system');
+});
+test('Background tasks lives under More, loads only there, and retains read-only refresh and lifecycle behavior',async({page})=>{
+  await page.clock.install();
+  let requests=0;
+  const writes:string[]=[];
+  await page.route('**/dashboard/tasks',route=>{requests++;return route.fulfill({json:{success:true,data:tasksSnapshot}});});
+  page.on('request',r=>{if(r.url().includes('/api/') && r.method()!=='GET')writes.push(r.url());});
+  await page.goto('/mobile/');await expect(page.locator('.stream-card')).toHaveCount(2);
+  expect(requests).toBe(0);
+  await page.getByRole('button',{name:'Customize',exact:true}).click();
+  await expect(page.getByRole('button',{name:'Pin Background work',exact:true})).toHaveCount(0);
+  await page.getByRole('link',{name:'More',exact:true}).click();
+  await page.getByRole('button',{name:/Background tasks/}).click();
+  await expect(page.locator('h1')).toHaveText('Background tasks');
+  await expect(page.getByRole('link',{name:'More',exact:true})).toHaveAttribute('aria-current','page');
+  const tasks=page.locator('.task-list');
+  await expect(tasks).toContainText('1 failed · 1 running');
+  await tasks.getByText('Prune expired data',{exact:true}).click();
+  await expect(tasks).toContainText('<redacted>');
+  expect(await page.locator('main').innerText()).not.toContain('fixture-task-secret');
+  expect(requests).toBe(1);
+  await page.getByRole('button',{name:'Refresh dashboard'}).click();await expect.poll(()=>requests).toBe(2);
+  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'));});
+  await page.clock.fastForward(125000);expect(requests).toBe(2);
+  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,value:false});document.dispatchEvent(new Event('visibilitychange'));});
+  await expect.poll(()=>requests).toBe(3);
+  await page.getByRole('button',{name:'Back',exact:true}).click();await expect(page.locator('h1')).toHaveText('More');
+  await page.getByRole('button',{name:'Refresh dashboard'}).click();await page.clock.fastForward(65000);expect(requests).toBe(3);
+  await page.goto('/mobile/#background-tasks');await expect(page.locator('.task-list')).toBeVisible();await expect.poll(()=>requests).toBe(4);
+  expect(writes).toEqual([]);
+});
+test('Usenet displays cache and download capacity without initiating work',async({page})=>{
+  const writes:string[]=[];page.on('request',r=>{if(r.url().includes('/api/') && r.method()!=='GET')writes.push(r.url());});
+  await page.goto('/mobile/#usenet');
+  await expect(page.getByText('Capacity & cache',{exact:true})).toBeVisible();
+  await expect(page.getByText('83.3%',{exact:true})).toBeVisible();
+  await expect(page.locator('.usenet-capacity')).toContainText('6 / 12');
+  await page.getByText('Cache details',{exact:true}).click();
+  await expect(page.locator('.usenet-capacity')).toContainText('50');
+  await page.getByRole('link',{name:'Browse library →'}).click();
+  await expect(page.locator('h1')).toHaveText('Usenet library');
+  expect(writes).toEqual([]);
+});
+test('Library searches, filters and pages with read-only file/recheck details',async({page})=>{
+  const writes:string[]=[];page.on('request',r=>{if(r.url().includes('/api/') && r.method()!=='GET')writes.push(r.url());});
+  await page.goto('/mobile/#library');
+  await expect(page.locator('.library-entry')).toHaveCount(20);
+  await page.getByRole('button',{name:'Next',exact:true}).click();
+  await expect(page.locator('.library-entry')).toHaveCount(4);
+  await page.getByLabel('Library status').selectOption('degraded');
+  await expect(page.locator('.library-entry')).toHaveCount(1);
+  await page.getByText('Release details & files',{exact:true}).click();
+  await expect(page.locator('.library-entry')).toContainText('Season 1/The.Expanse.S01E01.mkv');
+  await expect(page.locator('.library-entry')).toContainText('Next recheck');
+  await page.getByLabel('Search library').fill('does not exist');
+  await expect(page.getByText('No matching releases',{exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Back',exact:true}).click();await expect(page.locator('h1')).toHaveText('More');
+  expect(writes).toEqual([]);
+});
+test('Media Info displays probes, failures and stored tracks without starting or cancelling probes',async({page})=>{
+  const writes:string[]=[];page.on('request',r=>{if(r.url().includes('/api/') && r.method()!=='GET')writes.push(r.url());});
+  await page.goto('/mobile/#media-info');
+  await expect(page.locator('.media-summary')).toContainText('842');
+  await expect(page.locator('.probe-queue')).toContainText('probing');
+  await expect(page.locator('.probe-entry')).toHaveCount(20);
+  await page.getByRole('button',{name:'Next',exact:true}).click();await expect(page.locator('.probe-entry')).toHaveCount(4);
+  await page.getByLabel('Probe outcome').selectOption('failed');await expect(page.locator('.probe-entry')).toHaveCount(8);
+  await expect(page.locator('.probe-entry').first()).toContainText('<redacted>');
+  expect(await page.locator('main').innerText()).not.toContain('fixture-probe-secret');
+  await page.getByRole('button',{name:'Stored files',exact:true}).click();
+  await expect(page.locator('.media-file')).toHaveCount(1);
+  await page.getByText('Metadata & tracks (3)',{exact:true}).click();
+  await expect(page.locator('.media-file')).toContainText('3840 × 2160');
+  await expect(page.locator('.media-file')).toContainText('6 channels');
+  await expect(page.locator('.media-file')).toContainText('Forced');
+  expect(writes).toEqual([]);
+});
+test('unsupported Media Info stops extra requests, while auth/malformed/empty states remain recoverable',async({page})=>{
+  let summaryRequests=0;const subordinate:string[]=[];
+  await page.route('**/dashboard/media-info',route=>{summaryRequests++;return route.fulfill({status:404,json:{success:false,error:{message:'Missing route'}}});});
+  page.on('request',r=>{if(r.url().includes('/dashboard/media-info/'))subordinate.push(r.url());});
+  await page.goto('/mobile/#media-info');
+  await expect(page.getByText('Media Info is unavailable',{exact:true})).toBeVisible();expect(subordinate).toEqual([]);
+  await page.clock.install();await page.clock.fastForward(65000);expect(summaryRequests).toBe(1);
+  await page.getByRole('button',{name:'Check again',exact:true}).click();await expect.poll(()=>summaryRequests).toBe(2);
+  await page.unroute('**/dashboard/media-info');
+  await page.route('**/dashboard/media-info',route=>route.fulfill({json:{success:true,data:mediaSummary}}));
+  await page.getByRole('button',{name:'Check again',exact:true}).click();await expect(page.locator('.media-summary')).toBeVisible();
+  await page.route('**/dashboard/usenet/library?*',route=>route.fulfill({status:401,json:{success:false}}));
+  await page.goto('/mobile/#library');await expect(page.getByRole('link',{name:'Sign in',exact:true})).toBeVisible();
+  await page.unroute('**/dashboard/usenet/library?*');
+  await page.route('**/dashboard/usenet/library?*',route=>route.fulfill({json:{success:true,data:{...librarySnapshot,entries:[{}]}}}));
+  await page.getByRole('button',{name:'Refresh dashboard'}).click();await expect(page.getByRole('alert')).toContainText('incompatible');
+  await page.unroute('**/dashboard/usenet/library?*');
+  await page.route('**/dashboard/usenet/library?*',route=>route.fulfill({json:{success:true,data:{entries:[],total:0}}}));
+  await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(page.getByText('No matching releases',{exact:true})).toBeVisible();
+});
+test('new feeds refresh and suspend while hidden, and older overview preferences migrate',async({page})=>{
+  await page.addInitScript(()=>localStorage.setItem('aiomobile.preferences',JSON.stringify({overview:[{id:'tasks',pinned:true},{id:'bandwidth',pinned:true},{id:'streams',pinned:false},{id:'providers',pinned:false}]})));
+  let updates=0;
+  await page.route('**/dashboard/system',route=>route.fulfill({json:{success:true,data:{...systemMetrics,memory:{...systemMetrics.memory,rss:++updates*1024**2}}}}));
+  await page.route('**/system/stream',route=>route.abort());
+  await page.goto('/mobile/');await expect(page.locator('[data-overview-section]').first()).toHaveAttribute('data-overview-section','bandwidth');
+  for(const name of health)await expect(page.locator(`[data-overview-section="${name}"]`)).toHaveCount(1);
+  await expect.poll(()=>updates).toBe(1);await page.getByRole('button',{name:'Refresh dashboard'}).click();await expect.poll(()=>updates).toBe(2);
+  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'));});
+  await page.clock.install();await page.clock.fastForward(70000);expect(updates).toBe(2);
+  await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,value:false});document.dispatchEvent(new Event('visibilitychange'));});await expect.poll(()=>updates).toBe(3);
+});
+test('light and dark monitoring views fit narrow phones and desktop with long data',async({page})=>{
+  await page.route('**/dashboard/tasks',route=>route.fulfill({json:{success:true,data:{...tasksSnapshot,tasks:tasksSnapshot.tasks.map(t=>({...t,label:t.label+'.'.repeat(100)}))}}}));
+  await page.route('**/dashboard/media-info/live',route=>route.fulfill({json:{success:true,data:{...mediaLive,jobs:[]}}}));
+  await page.goto('/mobile/');
+  for(const [width,theme] of [[320,'sage'],[390,'paper'],[1280,'sage']] as const){
+    await page.evaluate(theme=>localStorage.setItem('aiomobile.preferences',JSON.stringify({theme})),theme);
+    await page.reload();
+    await page.setViewportSize({width,height:900});
+    for(const view of ['overview','usenet','library','media-info','background-tasks']){
+      await page.goto(`/mobile/#${view}`);await expect(page.locator('h1')).toBeVisible();
+      await expect(page.locator('.skeletons')).toHaveCount(0);
+      await expect(page.locator('html')).toHaveAttribute('data-theme',theme);
+      if(view==='library')expect(await page.getByLabel('Library status').evaluate(e=>e.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+      if(view==='library')await page.locator('.library-entry details').first().getByText('Release details & files').click();
+      if(view==='media-info'){await page.getByRole('button',{name:'Stored files',exact:true}).click();await page.getByText('Metadata & tracks (3)').click();}
+      expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    }
+  }
+});

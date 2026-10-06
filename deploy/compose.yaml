@@ -1,0 +1,42 @@
+# Standalone static service. Keep out of the parent Compose include list.
+services:
+  aiomobile:
+    image: nginx:stable-alpine@sha256:0985e772fb9f729e6fa0980da05fca5d9c468e870eed43071545afa9d2e27d94
+    container_name: aiomobile
+    restart: unless-stopped
+    user: '101:101'
+    entrypoint: ['nginx']
+    command: ['-g', 'daemon off;']
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']
+    tmpfs: ['/tmp:rw,noexec,nosuid,size=16m,mode=1777']
+    mem_limit: 64m
+    cpus: 0.25
+    expose: ['8080']
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./site:/usr/share/nginx/html:ro
+    networks: [aio]
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '-O', '/dev/null', 'http://127.0.0.1:8080/healthz']
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: '${AIO_DOCKER_NETWORK:-aio_network}'
+      traefik.http.routers.aiomobile.rule: 'Host(`${AIOSTREAMS_HOSTNAME:?Set AIOSTREAMS_HOSTNAME in .env}`) && (Path(`/mobile`) || PathPrefix(`/mobile/`))'
+      traefik.http.routers.aiomobile.priority: '400'
+      traefik.http.routers.aiomobile.entrypoints: 'websecure'
+      traefik.http.routers.aiomobile.tls.certresolver: '${AIO_TLS_RESOLVER:-letsencrypt}'
+      traefik.http.routers.aiomobile.middlewares: '${AIO_AUTH_MIDDLEWARE:-authelia@docker}'
+      traefik.http.routers.aiomobile.service: 'aiomobile'
+      traefik.http.services.aiomobile.loadbalancer.server.port: '8080'
+      com.centurylinklabs.watchtower.enable: 'false'
+      dev.dozzle.url: 'https://${AIOSTREAMS_HOSTNAME:?Set AIOSTREAMS_HOSTNAME in .env}/mobile/'
+networks:
+  aio:
+    external: true
+    name: ${AIO_DOCKER_NETWORK:-aio_network}

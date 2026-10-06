@@ -1,0 +1,5 @@
+AIOMobile includes TypeScript interface declarations and adapted log redaction patterns from AIOStreams.
+AIOStreams: https://github.com/Viren070/AIOStreams
+Copyright AIOStreams contributors. Licensed under AGPL-3.0 (see LICENSE).
+Source snapshot: 70ffb17a7bb99dd73dbab257af040b04f56eaa42.
+Source paths are recorded in docs/api-contract.md.
