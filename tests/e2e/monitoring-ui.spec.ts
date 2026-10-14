@@ -68,17 +68,17 @@ test('overview pins and ordering persist without reconnecting live feeds and res
   const order=()=>page.locator('[data-overview-section]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('data-overview-section')));
   await page.getByRole('button',{name:'Customize',exact:true}).click();
   await page.getByRole('button',{name:'Pin Bandwidth',exact:true}).click();
-  await expect.poll(order).toEqual(['bandwidth','streams','providers','system','warnings']);
+  await expect.poll(order).toEqual(['bandwidth','streams','providers','system','warnings','version']);
   await page.getByRole('button',{name:'Move Usenet health up',exact:true}).click();
-  await expect.poll(order).toEqual(['bandwidth','providers','streams','system','warnings']);
+  await expect.poll(order).toEqual(['bandwidth','providers','streams','system','warnings','version']);
   expect(reconnects).toBe(0);
   await page.reload();
-  await expect.poll(order).toEqual(['bandwidth','providers','streams','system','warnings']);
+  await expect.poll(order).toEqual(['bandwidth','providers','streams','system','warnings','version']);
   await page.getByRole('button',{name:'Customize',exact:true}).click();
   await expect(page.getByRole('button',{name:'Pin Bandwidth',exact:true})).toHaveAttribute('aria-pressed','true');
   await page.getByRole('button',{name:'Restore default layout'}).click();
-  await expect.poll(order).toEqual(['streams','providers','bandwidth','system','warnings']);
-  await page.reload();await expect.poll(order).toEqual(['streams','providers','bandwidth','system','warnings']);
+  await expect.poll(order).toEqual(['streams','providers','bandwidth','system','warnings','version']);
+  await page.reload();await expect.poll(order).toEqual(['streams','providers','bandwidth','system','warnings','version']);
 });
 
 test('advanced settings collapse, preserve drafts, and reopen for validation errors', async ({ page }) => {
@@ -128,5 +128,5 @@ test('failed layout storage keeps the current order and shows a useful error', a
   await page.getByRole('button',{name:'Pin Bandwidth',exact:true}).click();
   await expect(page.getByRole('alert')).toContainText('Could not save the layout');
   await expect(page.getByRole('button',{name:'Pin Bandwidth',exact:true})).toHaveAttribute('aria-pressed','false');
-  expect(await page.locator('[data-overview-section]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('data-overview-section')))).toEqual(['streams','providers','bandwidth','system','warnings']);
+  expect(await page.locator('[data-overview-section]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('data-overview-section')))).toEqual(['streams','providers','bandwidth','system','warnings','version']);
 });

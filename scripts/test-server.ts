@@ -4,7 +4,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { resolve, extname } from 'node:path';
 import { liveStreams, liveUsenet, bandwidth, stats, history, logRecords } from '../tests/fixtures.ts';
 import { addonAnalytics } from '../tests/usage-fixtures.ts';
-import { systemMetrics, tasksSnapshot, librarySnapshot, mediaSummary, mediaLive, probeAttempts, mediaFiles } from '../tests/monitoring-fixtures.ts';
+import { serverVersion, systemMetrics, tasksSnapshot, librarySnapshot, mediaSummary, mediaLive, probeAttempts, mediaFiles } from '../tests/monitoring-fixtures.ts';
 const fixturePort=Number(process.env.AIOMOBILE_TEST_PORT || 4174);
 let unavailable=false;
 let logs=[...logRecords],logSeq=30,logReconnect=false;
@@ -49,6 +49,7 @@ const server=createServer(async(req,res)=> {
       send();const timer=setInterval(send,5000);req.on('close',()=>clearInterval(timer));return;
     }
     if(url.pathname==='/api/v1/dashboard/analytics/addons'){json(addonAnalytics);return;}
+    if(url.pathname==='/api/v1/status'){json(serverVersion);return;}
     if(url.pathname==='/api/v1/dashboard/system'){json(systemMetrics);return;}
     if(url.pathname==='/api/v1/dashboard/tasks'){json(tasksSnapshot);return;}
     if(url.pathname==='/api/v1/dashboard/usenet/library'){

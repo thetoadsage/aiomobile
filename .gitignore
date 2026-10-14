@@ -7,6 +7,8 @@ playwright-report/
 .DS_Store
 releases/
 .impeccable/hook.cache.json
+.impeccable/review/
 .codex/
 .agents/
 .aws/
+/memory.md

@@ -201,8 +201,8 @@ test('capture major screens at iPhone dimensions with synthetic data',async({pag
     // Allow two real fixture ticks for live charts and the entry transition.
     await page.waitForTimeout(3200);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
     const file=name.toLowerCase().replaceAll(' ','-');
-    // A compact attention summary now precedes activity; both remain above the fold.
-    if(path==='overview'){await expect(page.locator('.attention-panel > summary')).toBeInViewport();expect((await page.locator('.stream-card').first().boundingBox())?.y).toBeLessThan(600);}
+    // Attention and the first active stream remain visible on the initial screen.
+    if(path==='overview'){await expect(page.locator('.attention-panel > summary')).toBeInViewport();await expect(page.locator('.stream-card').first()).toBeInViewport({ratio:.5});}
     await page.evaluate(()=>window.scrollTo(0,0));
     await page.screenshot({path:`docs/screenshots/${file}.png`});
     await page.screenshot({path:`docs/screenshots/${file}-full.png`,fullPage:true});

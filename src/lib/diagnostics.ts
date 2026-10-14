@@ -14,6 +14,7 @@ export function clearDiagnostics() { entries = []; listeners.forEach(listener =>
 export function useDiagnostics() { return useSyncExternalStore(listener => { listeners.add(listener); return () => { listeners.delete(listener); }; }, () => entries); }
 
 export function diagnosticSource(path: string): Entry['source'] {
+  if(path === '/status') return 'App';
   if(path.startsWith('/analytics/addons')) return 'Addons';
   if(path.startsWith('/system')) return 'System';
   if(path.startsWith('/tasks')) return 'Tasks';

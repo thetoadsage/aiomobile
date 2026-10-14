@@ -26,11 +26,12 @@ Addon percentages are 0–100, unlike fractional Usenet rates. The supported ser
 
 ## Remaining optional opportunities
 
+Implementation and deployment update — 2026-10-13: AIOStreams version/build status and explicit bounded GitHub update checks are now implemented and deployed as build `eb3ff919e6315e5d`, alongside optional Media Info enrichment coverage/source counts and richer stored-track details. Fields were verified against release v2.36.0 and its official docs. Static HTTPS/checksum and service-preservation checks pass; authenticated payloads and physical iPhone behavior remain operator acceptance. See `docs/api-contract.md` for the new contract and coverage limits.
+
 | Priority | Information | Source | Useful scope |
 | --- | --- | --- | --- |
 | Medium | Request resource trends and active/total stored configurations | `/analytics/overview`, `/analytics/requests?range=...` | Optional Activity view. Stored configurations are not currently watching people; collection/retention limits coverage. |
 | Medium | General cache instance inventory/items/backends | `/cache` | Optional cache inventory screen. Delivered segment/disk-cache metrics do not replace this inventory. No scan/clear actions needed. |
-| Low | Running upstream version/channel/build/commit | `/api/v1/status` (outside dashboard prefix) | Settings/About compatibility information. Newer-release comparison would additionally fetch GitHub releases. |
 | Low | Dedicated System screen and retained resource history | `/system` historical buffer | Only if diagnosing resource trends needs more than the existing compact card. |
 
 The original highest-priority gaps have been covered. Further work should follow a concrete monitoring need. Community moderation, user administration, instance settings and share/*arr management remain outside the current phone-monitoring scope.

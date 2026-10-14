@@ -15,6 +15,7 @@ import type { SystemMetrics } from '../api/monitoringTypes';
 import type { LogSnapshot } from '../api/logTypes';
 import { StreamList } from '../components/StreamList';
 import { StreamCapacity } from '../components/StreamCapacity';
+import { ServerVersion } from '../components/ServerVersion';
 
 export function Overview({ system, warnings, streams, usenet, bandwidth, loginUrl, open, navigate, stats, settings, save }: { system:Resource<SystemMetrics>; warnings:Resource<LogSnapshot>; streams: Resource<LiveStreams>; usenet: Resource<LiveStats>; bandwidth: Resource<BandwidthOverview>; loginUrl: string; open: (id: string) => void; navigate: () => void; stats: Resource<UsenetStatsOverview>; settings: Settings; save: (settings: Settings) => void }) {
   const [customizing, setCustomizing] = useState(false);
@@ -34,6 +35,7 @@ export function Overview({ system, warnings, streams, usenet, bandwidth, loginUr
   const issues = health.filter(p => p.warnings.length > 0).length;
   const receiving = !streams.error && (streams.mode === 'live' || streams.mode === 'polling');
   const sections: Record<OverviewSectionId, ReactNode> = {
+    version: <ServerVersion base={settings.baseUrl} loginUrl={loginUrl}/>,
     system: <SystemCard resource={system} loginUrl={loginUrl}/>,
     warnings: <RecentWarnings resource={warnings} loginUrl={loginUrl}/>,
     streams: <Section title="Active streams" action={<button className="text-button" onClick={navigate}>View all <Icon name="arrow" size={16}/></button>}>
@@ -52,7 +54,7 @@ export function Overview({ system, warnings, streams, usenet, bandwidth, loginUr
     <div className="intro overview-intro"><div><h1>Overview</h1><p>Your instance, at a glance</p></div><button className="text-button" aria-expanded={customizing} aria-controls="overview-customizer" onClick={() => setCustomizing(value => !value)}>{customizing ? 'Done' : 'Customize'}</button></div>
     {customizing && <><OverviewCustomizer layout={settings.overview} change={changeLayout}/>{layoutMessage && <p role="status" className="caption">{layoutMessage}</p>}{layoutError && <p role="alert" className="red">{layoutError}</p>}</>}
     <Status resource={streams} loginUrl={loginUrl}/>
-    <Attention usenet={usenet} stats={stats} loginUrl={loginUrl}/>
+    <Attention usenet={usenet} stats={stats} loginUrl={loginUrl} base={settings.baseUrl}/>
     <div className="card overview-summary">
       <div className="summary-heading"><span><i className={receiving ? 'green' : 'orange'}/> AIOStreams</span><small>{streams.error ? 'Updates unavailable' : streams.mode === 'live' ? 'Live activity' : streams.mode === 'polling' ? 'REST snapshot' : streams.data ? 'Last snapshot' : 'Connecting'}</small></div>
       <div className="summary-grid">

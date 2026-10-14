@@ -4,7 +4,7 @@ import { validLogSnapshot } from '../lib/logs';
 import { validUsage } from './usage';
 import type { BandwidthOverview, LiveStats, LiveStreams, StreamHistoryRow, UsenetStatsOverview } from './types';
 export class ApiError extends Error { constructor(message: string, public status = 0) { super(message); } }
-export function endpoint(base: string, path: string) { return `${base}/api/v1/dashboard${path}`; }
+export function endpoint(base: string, path: string) { return path === '/status' ? `${base}/api/v1/status` : `${base}/api/v1/dashboard${path}`; }
 export async function request<T>(base: string, path: string, signal?: AbortSignal, method = 'GET', body?: unknown): Promise<T> {
   try { return await fetchDashboard<T>(base,path,signal,method,body); }
   catch(error) {

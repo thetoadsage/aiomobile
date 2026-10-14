@@ -45,15 +45,15 @@ describe('attention is evidence-based and links to specific sources', () => {
 
 describe('overview layout preserves every section', () => {
   it('migrates partial layouts, removes duplicates, and ignores unknown sections', () => {
-    expect(normalizeOverview([{id:'tasks',pinned:true},{id:'bandwidth',pinned:true},{id:'bandwidth'},{id:'bogus'},null])).toEqual([{id:'bandwidth',pinned:true},{id:'streams',pinned:false},{id:'providers',pinned:false},{id:'system',pinned:false},{id:'warnings',pinned:false}]);
+    expect(normalizeOverview([{id:'tasks',pinned:true},{id:'bandwidth',pinned:true},{id:'bandwidth'},{id:'bogus'},null])).toEqual([{id:'bandwidth',pinned:true},{id:'streams',pinned:false},{id:'providers',pinned:false},{id:'system',pinned:false},{id:'warnings',pinned:false},{id:'version',pinned:false}]);
     expect(normalizeOverview('bad')).toEqual(defaultOverview());
   });
   it('pins first, reorders within groups, and does not mutate saved preferences', () => {
     const layout=defaultOverview();layout[2].pinned=true;
-    expect(orderedOverview(layout).map(x=>x.id)).toEqual(['bandwidth','streams','providers','system','warnings']);
-    expect(moveOverview(layout,'providers',-1).map(x=>x.id)).toEqual(['bandwidth','providers','streams','system','warnings']);
-    expect(moveOverview(layout,'streams',-1).map(x=>x.id)).toEqual(['bandwidth','streams','providers','system','warnings']);
-    expect(layout.map(x=>x.id)).toEqual(['streams','providers','bandwidth','system','warnings']);
+    expect(orderedOverview(layout).map(x=>x.id)).toEqual(['bandwidth','streams','providers','system','warnings','version']);
+    expect(moveOverview(layout,'providers',-1).map(x=>x.id)).toEqual(['bandwidth','providers','streams','system','warnings','version']);
+    expect(moveOverview(layout,'streams',-1).map(x=>x.id)).toEqual(['bandwidth','streams','providers','system','warnings','version']);
+    expect(layout.map(x=>x.id)).toEqual(['streams','providers','bandwidth','system','warnings','version']);
   });
 });
 

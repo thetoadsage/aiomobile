@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Cumulative step graphs for retained Usenet data/articles and global/per-user bandwidth, with touch and keyboard bucket inspection. Missing buckets remain distinct from recorded zeroes; Usenet errors use dated counts.
+- Device-local, per-instance health alert dismissal for up to 24 hours, with individual-source controls and rearming for new or increased failures.
+- Customizable AIOStreams version/build section with explicit, bounded GitHub release checks and clear unavailable/incomplete results.
+- Media Info enrichment coverage, metadata source totals and richer stored video/audio/subtitle details, with compatibility states for older servers.
+
 ## 0.1.0 — 2026-10-03
 
 First tested release of AIOMobile, a standalone mobile-first AIOStreams monitoring PWA.

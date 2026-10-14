@@ -1,4 +1,37 @@
-# Validation — 2026-10-06
+# Validation
+
+## GitHub publication checks — 2026-10-14
+
+- Current production build: `3f80adc44a201773`. Lint, all 62 unit tests, TypeScript and production build pass.
+- The complete Chromium/WebKit suite passes: 159 passed, one intentional duplicate-gallery skip. The gallery now checks actual stream-card visibility instead of a fixed 600px coordinate. Removed an unnecessary immediate reload in the chart fixture that aborted WebKit requests; both chart checks and the complete suite pass afterward.
+- README descriptions, build identifier, changelog and synthetic gallery now cover alert dismissal, cumulative usage graphs, server version checks and Media Info coverage. Local README links resolve. Six additional browser checks passed while refreshing the gallery and rechecking charts.
+- Project memory and new local review output are ignored; source archives exclude project memory. This publication check did not redeploy the app or verify authenticated production/physical iPhone behavior.
+
+## Cumulative recorded graphs — 2026-10-13
+
+Build `3f80adc44a201773` adds filled cumulative step graphs for Usenet data/articles and global/per-user bandwidth. Inspection distinguishes an absent bucket from a recorded zero; partial buckets and retention limits remain explicit. Errors use dated counts. Existing live throughput charts and API/auth/cache behavior are unchanged.
+
+Lint, 62 unit tests, typecheck and production build pass. All 36 focused Chromium/WebKit app, usage and graph checks pass; all four graph checks passed again after refreshing synthetic screenshot fixtures. Covers sparse/zero/empty/single records, keyboard inspection, metric changes, error counts, no API writes, accounting/aggregate identity and 320/390/1280px Paper/Sage layouts. Screenshot evidence is synthetic. Authenticated production behavior and physical iPhone/PWA acceptance require testing on the deployed instance.
+
+The fresh visual reviewer returned **ship for testing** with no material findings. Authorized static deployment verifies all 10 current files and 29 retained fingerprints with trusted HTTPS 200/SHA256 matches. Standalone Compose/Nginx validate; four relevant containers retain health, identity, starts, restart counts and configuration hashes. REST/SSE still redirect unauthenticated clients to sign-in. Rollback is validated and retained; no container restart, commit or push occurred.
+
+## Needs attention dismissal — 2026-10-13
+
+- Added a 44px X to dismiss the current notification, plus per-source dismissal in the expanded list. Per-instance, device-local preferences expire after 24 hours. New reasons, failure counts above acknowledged levels, newer indexer error timestamps and observed clear/recurrence rearm alerts. Missing/unavailable feeds do not imply resolution; detail pages and server records are unchanged.
+- `npm run lint`, `npm test` (59 tests) and `npm run build` pass; build `f3387c20d7b3244c`. All 36 related Chromium/WebKit app/monitoring/dismissal browser checks passed. After correcting repeated screen-reader announcements, all eight dismissal checks passed again, including distinct consecutive announcements, keyboard focus, reload persistence, blocked storage, rearming, no API writes and 320/390/1280px layouts.
+- Mechanical detector and the automatic design hook found no deterministic issues. The fresh reviewer marked its sole announcement finding resolved and approved that correction; previous visual review found no material issues. Documentation review is complete. Synthetic phone/desktop captures are in `.impeccable/review/attention-mobile.png` and `attention-desktop.png`.
+- Static deployment passes trusted HTTPS 200/SHA256 verification for all 10 current files and 27 retained fingerprints. Rollback is saved; standalone Compose/Nginx validate, and four relevant containers retain health, identities, starts, restart counts and configuration hashes. REST/SSE sign-in redirects remain unchanged. Private evidence is in the ignored release handoff. Authenticated production interaction and physical iPhone/PWA behavior remain operator acceptance; no commit or push.
+
+## Version status and Media Info coverage — 2026-10-13 (deployed)
+
+- Official v2.35/v2.36 docs establish product behavior; version and Media Info fields were inspected at release v2.36.0, commit `ce6244454ee131bf0945b2bd6abc670a449b224d`. No live authenticated instance was queried.
+- `npm run lint`, `npm test` (55 tests), and `npm run build` pass. Static-only build: `eb3ff919e6315e5d`.
+- Eight focused browser checks pass across Chromium and WebKit: explicit GitHub request, partial release count, build-change reset, unsupported status recovery, rate-limit error, missing/empty/nonzero coverage, source details, richer tracks, no API writes, and 320/390/1280px overflow checks.
+- Full browser run: 144 passed, 1 skipped, 3 failed. Two new failures came from the fixture omitting CORS exposure of the Link header; fixed the fixture and all eight new checks passed on rerun. The remaining pre-existing `polish.spec.ts` gallery test still expects the first stream above 600px; it reports 622.875px, matching the earlier known failure. The new version section follows existing sections and does not change that position. The complete suite is not claimed green.
+- Browsers were installed in a temporary cache because old browser directories lacked executables. Tests ran outside the sandbox through `PLAYWRIGHT_BROWSERS_PATH=/private/tmp/aiomobile-playwright-20261013 npm run test:e2e`. Existing tracked gallery captures overwritten by the broad suite were restored; the new synthetic review captures remain under `.impeccable/review/`.
+- Mechanical design detector returned no findings. Phone/desktop captures show the expanded version details, metadata sources and stored tracks. A fresh finish reviewer returned **ship** with no material findings; the documenter confirmed the extension preserves the incumbent system and existing documentation covers its semantics and limits.
+- User separately authorized static deployment. All 10 current files and 25 retained fingerprinted assets returned trusted HTTPS 200 with matching SHA256; `/mobile/` matched the new index. Manifest/index/service worker were published atomically after immutable assets, retaining older assets for open clients. The previous site archive is verified and retained for rollback.
+- Standalone Compose/Nginx validate. AIOMobile, AIOStreams, Traefik and Authelia remain healthy with identical IDs/start times/restart counts and configuration hashes. Unauthenticated dashboard REST/SSE retain their 302 sign-in redirects. No container was restarted, no authentication setting changed, and no provider operation occurred. Authenticated production payloads and physical iPhone/PWA behavior remain operator acceptance. No commit or push occurred.
 
 ## Retained usage and addon monitoring deployed — 2026-10-06
 

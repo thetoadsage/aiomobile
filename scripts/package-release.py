@@ -53,9 +53,8 @@ for name in ['package.json', 'package-lock.json', 'index.html', 'vite.config.ts'
     source[name] = read(name)
 for name in ['compose.yaml', 'nginx.conf', '.env.example', 'INSTALL.md']:
     source[f'deploy/{name}'] = read(f'deploy/{name}')
-# Replace the local deployment handoff and project memory with portable copies.
+# Package only the portable deployment guide; project memory stays local.
 source['deploy/README.md'] = read('deploy/INSTALL.md')
-source['memory.md'] = f'''# AIOMobile release memory\n\nVersion {VERSION}. React/TypeScript/Vite static monitoring PWA. Runtime dependencies: React and React DOM. Serve at /mobile/ on an existing AIOStreams origin; blank base URL, existing admin session cookie.\n\nSee docs/api-contract.md for upstream provenance/types and CHANGELOG.md for release validation. SSE live hooks are at app root; fallback polling is bounded, auth errors suspend retries, charts stay in memory, and the service worker caches only static assets. No secrets are persisted.\n\nSee deploy/INSTALL.md for scoped static deployment, updates, and rollback. Maintain this memory.md when extending the project.\n'''.encode()
 
 for payload in [source, static]:
     for name in payload:

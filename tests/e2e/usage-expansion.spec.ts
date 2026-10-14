@@ -13,7 +13,7 @@ test('Usenet history changes windows, keeps provider context and exposes removed
   await expect(page.locator('.usenet-history')).toContainText('70 GB');
   await expect(page.getByRole('img',{name:/Data fetched, 4 recorded buckets/})).toBeVisible();
   await page.getByRole('button',{name:'Articles',exact:true}).click();await expect(page.getByRole('img',{name:/Articles fetched, 4 recorded buckets/})).toBeVisible();
-  await page.getByRole('button',{name:'Errors',exact:true}).click();await expect(page.getByRole('img',{name:/Fetch errors, 4 recorded buckets. Latest 4/})).toBeVisible();
+  await page.getByRole('button',{name:'Errors',exact:true}).click();await expect(page.locator('.recorded-errors')).toContainText('4 errors');await expect(page.locator('.recorded-errors li')).toHaveCount(4);
   await page.getByRole('button',{name:'7D',exact:true}).click();await expect.poll(()=>windows.at(-1)).toBe('7d');
   await page.getByRole('button',{name:/Primary provider/}).click();await expect(page.getByText('Statistics: last 7 days.')).toBeVisible();
   await page.getByRole('button',{name:'30D',exact:true}).click();await expect.poll(()=>windows.at(-1)).toBe('30d');
@@ -98,7 +98,7 @@ test('Addon health recovers from unavailable, empty, malformed and authenticatio
 test('historical charts keep empty and single-bucket states truthful and malformed buckets stay out', async ({ page }) => {
   let data={...stats,throughput:[stats.throughput[0]]};
   await page.route('**/usenet/stats?*',route=>route.fulfill({json:{success:true,data}}));
-  await page.goto('/mobile/#usenet');await expect(page.locator('.usenet-history')).toContainText('One recorded bucket · 10 GB');await expect(page.locator('.usenet-history')).not.toContainText('Collecting live samples');
+  await page.goto('/mobile/#usenet');await expect(page.getByRole('img',{name:/Data fetched, 1 recorded buckets. Accumulated 10 GB/})).toBeVisible();await expect(page.locator('.usenet-history')).not.toContainText('Collecting live samples');
   data={...stats,throughput:[]};await page.getByRole('button',{name:'Refresh dashboard'}).click();await expect(page.locator('.usenet-history')).toContainText('No recorded buckets');
   await page.unroute('**/usenet/stats?*');await page.route('**/usenet/stats?*',route=>route.fulfill({json:{success:true,data:{...stats,throughput:[{bucketMs:1,bytes:1}]}}}));await page.getByRole('button',{name:'Refresh dashboard'}).click();await expect(page.getByRole('alert')).toContainText('incompatible');
 });

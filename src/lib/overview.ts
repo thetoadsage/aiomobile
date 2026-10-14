@@ -4,6 +4,7 @@ export const overviewSections = [
   { id: 'bandwidth', title: 'Bandwidth' },
   { id: 'system', title: 'System' },
   { id: 'warnings', title: 'Recent warnings' },
+  { id: 'version', title: 'AIOStreams version' },
 ] as const;
 export type OverviewSectionId = typeof overviewSections[number]['id'];
 export interface OverviewSectionPreference { id: OverviewSectionId; pinned: boolean }

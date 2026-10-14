@@ -4,9 +4,11 @@ A mobile dashboard for your existing [AIOStreams](https://github.com/Viren070/AI
 
 AIOMobile is a static frontend. It uses AIOStreams' existing admin login and APIs, with no separate backend or credentials to configure.
 
+The current build, `3f80adc44a201773` (2026-10-14), adds cumulative usage graphs, device-local health alert dismissal, AIOStreams version checks and Media Info coverage. See the [changelog](CHANGELOG.md) for the latest changes.
+
 ## Screenshots
 
-Screenshots use synthetic demo data. Overview, Streams, Usenet and History show the latest retained-usage dashboard additions. The header icon follows the selected theme.
+Screenshots use synthetic demo data from the current build. The header icon follows the selected theme.
 
 | Overview · Sage | Streams · Sage | Usenet · Sage |
 | :---: | :---: | :---: |
@@ -18,6 +20,10 @@ Screenshots use synthetic demo data. Overview, Streams, Usenet and History show 
 | Logs · Sage | Settings · Paper | History · Sage |
 | :---: | :---: | :---: |
 | <img src="docs/screenshots/readme/logs.png" width="240" alt="Live server logs with search and filtering in the Sage theme"> | <img src="docs/screenshots/readme/settings.png" width="240" alt="Theme picker and display preferences in the light Paper theme"> | <img src="docs/screenshots/readme/history.png" width="240" alt="Bandwidth totals, per-user trends and accounting-period usage in the Sage theme"> |
+
+| Recorded activity · Paper | Server version · Sage |
+| :---: | :---: |
+| <img src="docs/screenshots/readme/recorded-activity.png" width="240" alt="Cumulative Usenet usage graph with recorded bucket inspection"> | <img src="docs/screenshots/readme/server-version.png" width="240" alt="AIOStreams version, build details and explicit GitHub update check"> |
 
 </details>
 
@@ -75,7 +81,7 @@ The new service handles only `/mobile/`. AIOStreams continues serving its own da
 
 | Screen | What it does |
 | --- | --- |
-| Overview | Current activity, System health and recent warnings; customize the section order. |
+| Overview | Current activity, dismissible health alerts, System health, recent warnings and AIOStreams version/build information; customize the section order. |
 | Streams | Search, filter and inspect active streams, with file position, configured global stream cap and reported open reads. |
 | Usenet | Live throughput, retained activity trends, provider time windows/history, download capacity and segment-cache statistics. |
 | Logs | Follow server logs, search/filter, pause the view, copy or export entries. |
@@ -83,13 +89,19 @@ The new service handles only `/mobile/`. AIOStreams continues serving its own da
 
 **Usenet Library** shows release availability, failures, files and recheck dates, with search and status filters. **Media Info** shows the current probe queue, recorded attempts and stored video/audio/subtitle tracks. These views are read-only; they do not initiate imports, rechecks or probes. Media Info requires an AIOStreams version with the newer dashboard routes and shows an unavailable message when they are missing.
 
+Media Info also shows the share of eligible stream results filled with metadata, when the server exposes these counters, plus source totals and richer track details. Coverage uses the last 24 hourly buckets on the reporting process, resets on restart and counts repeated results. Missing coverage is shown as unavailable; no eligible results is distinct from 0% coverage.
+
+Overview's **AIOStreams version** section shows the running version, channel, build time and commit when available. Expand **Build & updates** to check GitHub explicitly. Each check fetches one page of up to 100 releases for comparison with the running channel, without cookies, referrer or instance details. An incomplete list reports a lower-bound update count or an inconclusive result. **All releases** opens the upstream archive; this does not update the server or replace AIOMobile's own Update prompt.
+
+Dismiss **Needs attention** alerts with the X, or expand the list to dismiss individual sources. Dismissals stay on this device for up to 24 hours. New or increased failures and observed resolution followed by recurrence bring alerts back; dismissing an alert does not change server records.
+
 **Background tasks** shows the latest results, errors and scheduled runs under More. Opening this screen does not run tasks.
 
 **Streams** reports the latest read’s file position, including its starting offset. Buffering and seeking can make it differ from playback progress; it is unavailable between reads. The configured global stream cap and reported sessions with open reads are separate signals, and replica snapshots may omit reads.
 
-**Usenet** separates app-open live throughput from retained transfer, article and error history. Provider details preserve the selected history window. Retention and missing buckets limit coverage.
+**Usenet** separates app-open live throughput from retained history. Data and articles use filled, cumulative step graphs; tap the graph or use its slider to inspect a recorded bucket. Flat sections mean no additional activity recorded, and an absent bucket stays distinct from a recorded zero. Errors appear as dated counts. Provider details preserve the selected history window. Retention and resets limit coverage.
 
-**History & Bandwidth** adds per-user trends and expandable session details. Select **Accounting period** to compare user usage with bandwidth limits; 24h/7d totals cover different windows. The configured monthly reset date determines the monthly period.
+**History & Bandwidth** adds cumulative global/per-user usage graphs and expandable session details. Graph totals sum retained buckets and can differ from summary totals at window boundaries. Select **Accounting period** to compare user usage with bandwidth limits; 24h/7d totals cover different windows. The configured monthly reset date determines the monthly period.
 
 **Addon health** shows retained preset requests, errors and average latency, with separate custom URL request counts. Choose 24h, 7d or All rollups. Collection and retention settings limit coverage; an empty window is not proof of healthy addons. Opening this screen does not call or test addons.
 

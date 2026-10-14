@@ -26,6 +26,8 @@ export interface LibrarySnapshot { entries: LibraryEntry[]; total: number }
 export type ProbeOutcome = 'stored' | 'applied' | 'empty' | 'failed' | 'timeout' | 'cancelled';
 export interface MediaSummary {
   stored: { total: number; lastDay: number; byOrigin: { origin: string; files: number; lastDay: number }[] };
+  /** Process-local counters for the last 24 hourly buckets; absent on older builds. */
+  lookups?: { eligible: number; filled: number; bySource: Record<string, number> };
   day: Record<ProbeOutcome, number> & { attempts: number; medianMs: number | null; p95Ms: number | null };
   probing: boolean; ffprobe: { missing: boolean; version: string | null };
 }
@@ -44,6 +46,10 @@ export interface ProbeAttempt {
 export interface MediaTrack {
   index: number; type: 'video' | 'audio' | 'subtitle'; codec?: string; language?: string; title?: string;
   width?: number; height?: number; channels?: number; default?: boolean; forced?: boolean; hearingImpaired?: boolean;
+  profile?: string; channelLayout?: string; sampleRate?: number; bitrate?: number;
+  commentary?: boolean; original?: boolean; dub?: boolean; visualImpaired?: boolean;
+  bitDepth?: number; fps?: number; avgFps?: number; hdr?: string[];
+  dvProfile?: number; hdr10Plus?: boolean; colorTransfer?: string;
 }
 export interface MediaFile {
   file: string; title?: string | null; nzbName: string | null; origin: string; updatedAt: number; size: number | null;

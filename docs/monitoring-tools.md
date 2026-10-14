@@ -6,6 +6,10 @@ Overview shows a compact, expandable summary when a provider or indexer has a co
 
 Provider warnings reuse the existing activity-aware health rules: idle and disabled providers are not automatically unhealthy. Provider rates and indexer failures use the last 24 hours; indexer failures are historical outcomes, not a claim that the indexer is currently offline. A last-error message alone does not flag an indexer. Unavailable checks expose retry/sign-in and stale-snapshot information.
 
+The **X** beside Needs attention dismisses its current alerts; expand the panel to dismiss just one source. Dismissals are saved on this device, per instance, for up to 24 hours. Different problems, failure counts above the acknowledged count, or a newer recorded indexer error appear again. A problem that is observed to clear is rearmed if it returns. Decreasing counts stay dismissed; absent sources and unavailable feeds are not treated as healthy. Health-check failures remain visible, and provider/indexer details are unchanged.
+
+Only opaque preference identifiers, numeric acknowledgement thresholds and expiry times are stored locally, without source names or error messages. These identifiers are not encryption. If browser storage is unavailable, dismissal works for the current visit. Dismissing never changes AIOStreams data or starts a provider/indexer request.
+
 Overview now reads the existing 24-hour Usenet statistics endpoint on the configured historical refresh interval. No provider tests, indexer grabs, mutations, or new backend endpoints were added.
 
 ## Find a stream
