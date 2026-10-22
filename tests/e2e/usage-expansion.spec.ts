@@ -19,7 +19,7 @@ test('Usenet history changes windows, keeps provider context and exposes removed
   await page.getByRole('button',{name:'30D',exact:true}).click();await expect.poll(()=>windows.at(-1)).toBe('30d');
   await page.getByRole('button',{name:'Back',exact:true}).click();await expect(page.getByRole('button',{name:'30D',exact:true})).toHaveAttribute('aria-pressed','true');
   await page.getByRole('button',{name:/Former provider/}).click();await expect(page.getByText('Removed provider',{exact:true})).toBeVisible();
-  await expect(page.getByRole('heading',{name:'Live throughput'})).toHaveCount(0);await expect(page.getByText('Historical statistics only;', {exact:false})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Speed per connection'})).toHaveCount(0);await expect(page.getByText('Historical statistics only;', {exact:false})).toBeVisible();
   await page.getByRole('button',{name:'All',exact:true}).click();await expect.poll(()=>windows.at(-1)).toBe('all');
 });
 

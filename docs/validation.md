@@ -1,5 +1,14 @@
 # Validation
 
+## Compact provider connections — 2026-10-22
+
+- Local build `b64eaf5f7dbce5b7`: lint, 63 unit tests, TypeScript and production build pass.
+- 54 focused Chromium/WebKit checks pass across provider connections, lifecycle/navigation and usage/history. After desktop column alignment and deterministic theme capture corrections, all six provider checks pass again. Captures cover 320px Paper, 390px Sage, 768px Midnight and 1280px Sage; theme selection is asserted.
+- Checks cover warm-idle versus closed connections, zero maximum, long names, warnings/detail navigation, keyboard activation, stale retained snapshots, empty pools, reduced motion and no API writes. Local visual review confirmed mobile wrapping and aligned desktop bars. Automatic design hooks reported no deterministic issues.
+- Final animation correction: connection bars use `transform: scaleX()` instead of width transitions; reduced-motion behavior is preserved. Lint/typecheck/build and all six provider browser checks pass after the change. No hook suppressions or outstanding findings.
+- Static testing deployment verified all 10 current files and 31 retained assets over HTTPS with matching SHA256 values. The four relevant services retained their health, identity, start times, restart counts and configuration hashes. Rollback is saved, and existing unauthenticated REST/SSE sign-in redirects remain intact. The operator confirmed the deployed build works.
+- Automated browser checks use synthetic fixtures; authenticated production and physical-device behavior were not independently exercised by the agent.
+
 ## GitHub publication checks — 2026-10-14
 
 - Current production build: `3f80adc44a201773`. Lint, all 62 unit tests, TypeScript and production build pass.

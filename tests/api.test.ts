@@ -17,6 +17,11 @@ describe('verified dashboard contracts',()=>{
     expect(validSnapshot('/usenet/live',{...liveUsenet,pool:{providers:[{...liveUsenet.pool.providers[0],state:null}]}})).toBe(false);
     expect(validSnapshot('/usenet/stats',{...stats,indexers:[{...stats.indexers[0],successRate:null}]})).toBe(false);
   });
+  it('rejects missing or nonnumeric open-connection totals',()=>{
+    for (const total of [undefined,null,'8',NaN,Infinity]) {
+      expect(validSnapshot('/usenet/live',{...liveUsenet,pool:{...liveUsenet.pool,providers:[{...liveUsenet.pool.providers[0],total}]}})).toBe(false);
+    }
+  });
   it('requires a finite range start for accurate stream positions',()=>{
     for (const start of [undefined,null,'0',NaN,Infinity]) {
       expect(validSnapshot('/streams/live',{...liveStreams,streams:[{...liveStreams.streams[0],start}]})).toBe(false);

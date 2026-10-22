@@ -106,9 +106,14 @@ test('provider states distinguish idle, disabled, offline and tripped',async({pa
   await page.route('**/usenet/live',route=>route.fulfill({json:{success:true,data:{...liveUsenet,pool:{...liveUsenet.pool,providers}}}}));
   await page.route('**/usenet/stats?*',route=>route.fulfill({json:{success:true,data:{...stats,providers:[{...stats.providers[0],missRate:.2,errorRate:.1}]}}}));
   await page.goto('/mobile/#usenet');
-  for(const [name,state] of [['Primary provider','Active'],['Idle provider','Idle'],['Disabled provider','Disabled'],['Offline provider','Active'],['Tripped provider','Active']])await expect(page.locator('.provider-card').filter({hasText:name}).locator('.badge').first()).toHaveText(state);
-  await expect(page.getByText('Missing articles ≥10%')).toBeVisible();await expect(page.getByText('Errors ≥5%')).toBeVisible();await expect(page.getByText('No available connections · fetches queued')).toBeVisible();
-  await expect(page.locator('.provider-card').filter({hasText:'Idle provider'}).locator('p.orange')).toHaveCount(0);
+  for(const [name,state] of [['Primary provider','Active'],['Idle provider','Idle'],['Disabled provider','Disabled'],['Offline provider','Active'],['Tripped provider','Active']])await expect(page.locator('.connection-row').filter({hasText:name}).locator('.connection-state')).toContainText(state);
+  await expect(page.locator('.connection-row').filter({hasText:'Primary provider'})).toContainText('2 warnings');
+  await page.getByRole('button',{name:/Primary provider/}).click();
+  await expect(page.getByText('Missing articles ≥10%')).toBeVisible();await expect(page.getByText('Errors ≥5%')).toBeVisible();
+  await page.getByRole('button',{name:'Back',exact:true}).click();
+  await page.getByRole('button',{name:/Tripped provider/}).click();await expect(page.getByText('No available connections · fetches queued')).toBeVisible();
+  await page.getByRole('button',{name:'Back',exact:true}).click();
+  await expect(page.locator('.connection-row').filter({hasText:'Idle provider'}).locator('.orange')).toHaveCount(0);
 });
 
 test('idle providers with cold sockets and stale rates never need attention',async({page})=>{
@@ -117,7 +122,7 @@ test('idle providers with cold sockets and stale rates never need attention',asy
   await page.route('**/usenet/live',route=>route.fulfill({json:{success:true,data:{...liveUsenet,pool:{...liveUsenet.pool,providers:[provider]}}}}));
   await page.route('**/usenet/stats?*',route=>route.fulfill({json:{success:true,data:{...stats,providers:[{...stats.providers[0],missRate:.9,errorRate:.8}]}}}));
   await page.goto('/mobile/');await expect(page.getByText('0 active · 1 idle')).toBeVisible();await expect(page.getByText(/need attention/)).toHaveCount(0);
-  await page.getByRole('link',{name:'Usenet',exact:true}).click();await expect(page.locator('.provider-card .badge').first()).toHaveText('Idle');await expect(page.locator('.provider-card p.orange')).toHaveCount(0);
+  await page.getByRole('link',{name:'Usenet',exact:true}).click();await expect(page.locator('.connection-state').first()).toHaveText('Idle');await expect(page.locator('.connection-row .orange')).toHaveCount(0);
   await page.getByRole('button',{name:/Primary provider/}).click();await expect(page.locator('.page > .badge')).toHaveText('Idle');
 });
 

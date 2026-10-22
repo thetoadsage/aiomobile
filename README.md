@@ -4,11 +4,11 @@ A mobile dashboard for your existing [AIOStreams](https://github.com/Viren070/AI
 
 AIOMobile is a static frontend. It uses AIOStreams' existing admin login and APIs, with no separate backend or credentials to configure.
 
-The current build, `3f80adc44a201773` (2026-10-14), adds cumulative usage graphs, device-local health alert dismissal, AIOStreams version checks and Media Info coverage. See the [changelog](CHANGELOG.md) for the latest changes.
+The current build, `b64eaf5f7dbce5b7` (2026-10-22), adds a compact Live connections panel with layered connection bars and per-connection speed. It also includes cumulative usage graphs, device-local health alert dismissal, AIOStreams version checks and Media Info coverage. See the [changelog](CHANGELOG.md) for the latest changes.
 
 ## Screenshots
 
-Screenshots use synthetic demo data from the current build. The header icon follows the selected theme.
+Screenshots use synthetic demo data; some captures predate the latest layout refinements. The header icon follows the selected theme.
 
 | Overview · Sage | Streams · Sage | Usenet · Sage |
 | :---: | :---: | :---: |
@@ -99,7 +99,7 @@ Dismiss **Needs attention** alerts with the X, or expand the list to dismiss ind
 
 **Streams** reports the latest read’s file position, including its starting offset. Buffering and seeking can make it differ from playback progress; it is unavailable between reads. The configured global stream cap and reported sessions with open reads are separate signals, and replica snapshots may omit reads.
 
-**Usenet** separates app-open live throughput from retained history. Data and articles use filled, cumulative step graphs; tap the graph or use its slider to inspect a recorded bucket. Flat sections mean no additional activity recorded, and an absent bucket stays distinct from a recorded zero. Errors appear as dated counts. Provider details preserve the selected history window. Retention and resets limit coverage.
+**Usenet** separates app-open live throughput from retained history. Its compact Live connections panel layers connections in use over open connections, with per-connection speed and tap-through provider details. Data and articles use filled, cumulative step graphs; tap the graph or use its slider to inspect a recorded bucket. Flat sections mean no additional activity recorded, and an absent bucket stays distinct from a recorded zero. Errors appear as dated counts. Provider details preserve the selected history window. Retention and resets limit coverage.
 
 **History & Bandwidth** adds cumulative global/per-user usage graphs and expandable session details. Graph totals sum retained buckets and can differ from summary totals at window boundaries. Select **Accounting period** to compare user usage with bandwidth limits; 24h/7d totals cover different windows. The configured monthly reset date determines the monthly period.
 

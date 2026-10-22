@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Compact Live connections panel above Usenet history, with layered in-use/open capacity bars, provider warning summaries and per-connection speed labels.
+
 - Cumulative step graphs for retained Usenet data/articles and global/per-user bandwidth, with touch and keyboard bucket inspection. Missing buckets remain distinct from recorded zeroes; Usenet errors use dated counts.
 - Device-local, per-instance health alert dismissal for up to 24 hours, with individual-source controls and rearming for new or increased failures.
 - Customizable AIOStreams version/build section with explicit, bounded GitHub release checks and clear unavailable/incomplete results.

@@ -98,3 +98,7 @@ System/warnings are Overview-only resources, with one retained snapshot each; Ba
 - New runtime checks validate bandwidth window/period metadata, user totals/limits/series, richer history fields, Usenet aggregate/bucket numeric values and historical provider markers, addon percentages/error-kind counts/nullable latency, and nonnegative integer stream-cap counts and active-read counts before rendering. These are checks for supported contracts, not a universal schema.
 
 Source evidence: `packages/core/src/stream-sessions/{service,bandwidth}.ts`, `packages/core/src/usenet/integration/dashboard/stats.ts`, `packages/core/src/analytics/repository.ts`, and dashboard routes at supported commit `70ffb17a7bb99dd73dbab257af040b04f56eaa42`. Source/fixture validation does not prove authenticated deployed payloads.
+
+## Live connections presentation — 2026-10-22
+
+The compact provider panel follows the layered-bar approach in upstream `packages/frontend/src/app/dashboard/usenet/stats-page.tsx` at `89312b535f7e1eda9c81b1f0de3b62730bd7e22e`. Faint width is `total/max`; solid width is `acquired/max`, labeled in use rather than proof of active transfer. Provider speed is the sampled per-connection EWMA, which can persist while idle. Existing `/usenet/live` fields and refresh lifecycle are reused; `total` is now checked for a finite numeric value. Warning summaries open existing provider details and preserve the selected history window.
