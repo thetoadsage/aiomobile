@@ -111,14 +111,7 @@ i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; backgrou
 .metric strong { display: block; font-size: 25px; letter-spacing: -.02em; margin-top: 12px; overflow-wrap: anywhere; line-height: 1.2; }
 .metric small { display: block; font-size: 12px; margin-top: 6px; }
 .metric strong, .summary-grid strong, .indexer-grid strong, .stream-speed, .big-value { font-variant-numeric: tabular-nums; }
-.summary-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 14px; margin-bottom: 18px; }
-.summary-heading > span { display: flex; align-items: center; gap: 8px; font-weight: 550; }
-.summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 16px; }
-.summary-grid > div { min-width: 0; }
-.summary-grid strong { display: block; font-size: 27px; line-height: 1.2; letter-spacing: -.02em; overflow-wrap: anywhere; }
-.summary-grid small { display: block; font-size: 13px; margin-top: 4px; }
-.summary-grid .metric { padding: 0; min-height: 0; }
-.summary-grid .metric strong { margin: 0; }
+
 .health-summary strong { font-size: 16px; }
 .health-summary p { margin-top: 6px; }
 .bandwidth-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline; margin-bottom: 20px; }
@@ -367,21 +360,23 @@ select { appearance: auto; }
 /* Overview gives live delivery priority, with quieter diagnostics underneath. */
 .page-overview .intro { margin-bottom: 16px; }
 
-.overview-summary { background: var(--card); padding: 16px; }
-.summary-heading { margin-bottom: 12px; }
-.summary-heading small { font-size: 11px; }
-.summary-grid { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 12px 16px; }
-.summary-grid .summary-primary { background: transparent; padding: 0; }
-.summary-grid .summary-primary strong { font-size: clamp(26px, 7vw, 34px); letter-spacing: -.03em; color: var(--text); margin: 5px 0 0; }
-.summary-grid .summary-primary small { margin: 0; }
-.summary-streams { border-left: 1px solid var(--line); padding-left: 16px; align-self: center; }
-.summary-streams strong { font-size: 30px; }
-.summary-streams small { font-size: 12px; }
-.summary-secondary { border-top: 1px solid var(--line); padding-top: 10px; }
-.summary-secondary small { font-size: 12px; margin: 0 0 6px; }
-.summary-secondary strong { font-size: 21px; }
-.activity-breakdown { display: flex; flex-wrap: wrap; gap: 8px 16px; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 12px; font-size: 12px; color: var(--muted); }
-.activity-breakdown span { display: inline-flex; align-items: center; gap: 6px; }
+/* One shared type scale and baseline for the three live readings. */
+.overview-summary { background: var(--card); padding: 20px 16px; }
+.summary-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
+.summary-heading h2 { font-size: 15px; letter-spacing: 0; }
+.summary-freshness { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; text-align: right; }
+.summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; }
+.summary-reading { min-width: 0; }
+.summary-reading dt { color: var(--muted); font-size: 12px; line-height: 1.4; margin-bottom: 8px; }
+.summary-reading dd { margin: 0; }
+.summary-grid .summary-reading strong { display: block; color: var(--text); font-size: 30px; line-height: 1.2; font-weight: 600; letter-spacing: -.03em; overflow-wrap: anywhere; }
+.summary-grid .summary-reading:first-child strong { color: var(--accent); }
+.summary-reading small { display: block; margin-top: 4px; font-size: 11px; }
+@media (max-width: 359px) {
+  .summary-grid { gap: 8px; }
+  .summary-reading dt { font-size: 11px; }
+  .summary-grid .summary-reading strong { font-size: 26px; }
+}
 .health-summary { display: flex; gap: 14px; align-items: center; }
 .health-symbol { display: grid; place-items: center; width: 42px; height: 42px; flex-shrink: 0; border-radius: 13px; background: var(--surface-raised); }
 .health-summary p { font-size: 13px; }
@@ -395,10 +390,8 @@ select { appearance: auto; }
 button:active:not(:disabled), .button:active { transform: translateY(1px); }
 @media (min-width: 700px) {
   .overview-summary { padding: 20px; }
-  .summary-grid { grid-template-columns: minmax(0, 1.7fr) repeat(3, minmax(0, 1fr)); align-items: center; }
-  .summary-secondary { border-top: 0; border-left: 1px solid var(--line); padding: 0 0 0 20px; }
-  .summary-streams { padding-left: 20px; }
-  .summary-grid .summary-primary strong { font-size: 34px; }
+  .summary-heading { margin-bottom: 28px; }
+  .summary-grid .summary-reading strong { font-size: 34px; }
   .overview-content { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 28px; }
   .overview-streams .stack { grid-template-columns: minmax(0, 1fr); }
 }
@@ -499,7 +492,10 @@ button:active:not(:disabled), .button:active { transform: translateY(1px); }
 .attention-body .attention-dismiss-hint { margin-top: 12px; margin-bottom: 0; }
 .overview-customizer { margin-bottom: 16px; }
 .overview-customizer li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
-.overview-customizer li > strong { font-size: 14px; }
+.overview-visibility { display: flex; flex: 1; align-items: center; gap: 10px; min-height: 44px; min-width: 0; cursor: pointer; }
+.overview-visibility input[type=checkbox] { width: 20px; height: 20px; min-height: 0; margin: 0; padding: 0; flex-shrink: 0; accent-color: var(--accent); }
+.overview-visibility strong { font-size: 14px; }
+.overview-visibility small { display: block; margin-top: 2px; }
 .overview-customizer li > div { display: flex; gap: 6px; flex-shrink: 0; }
 .overview-customizer li button { min-width: 44px; padding: 10px; }
 .overview-customizer li button[aria-pressed=true] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
@@ -515,7 +511,7 @@ button:active:not(:disabled), .button:active { transform: translateY(1px); }
 .advanced-settings > .section { margin-top: 12px; }
 .advanced-settings > .section + .section { margin-top: 24px; }
 @media (min-width: 700px) { .overview-section:first-child { grid-row: span 2; } .overview-section > .section { margin-top: 28px; } .overview-section .pinned-section + .section { margin-top: 2px; } }
-@media (max-width: 359px) { .overview-customizer li { flex-wrap: wrap; } .overview-customizer li > div { margin-left: auto; } }
+@media (max-width: 359px) { .overview-customizer li { flex-direction: column; align-items: stretch; } .overview-customizer li > div { align-self: flex-end; } }
 
 /* One restrained entrance for protected-focus sheets; monitoring stays stable. */
 @media (prefers-reduced-motion: no-preference) {
@@ -562,7 +558,6 @@ button:active:not(:disabled), .button:active { transform: translateY(1px); }
 .overview-section { min-width: 0; }
 
 .stream-capacity { margin-top: 16px; margin-bottom: 16px; }
-.overview-summary .stream-capacity { margin-bottom: 0; }
 .period-usage > .caption, .addon-summary > .caption { margin-top: 8px; }
 .usage-gauge { margin-top: 12px; }
 .usage-gauge meter { display: block; width: 100%; height: 16px; margin-top: 8px; accent-color: var(--green); }
@@ -584,7 +579,7 @@ button:active:not(:disabled), .button:active { transform: translateY(1px); }
 .addon-card h3 { overflow-wrap: anywhere; margin-bottom: 12px; }
 .addon-card .facts dt { overflow-wrap: anywhere; }
 
-.page-library .filters select, .page-media-info .filters select, .page-history .filters select, .page-addons .filters select {
+.page-library .filters select, .page-media-info .filters select, .page-history .filters select, .page-addons .filters select, .stream-controls select {
   appearance: none;
   height: 48px;
   padding-right: 40px;

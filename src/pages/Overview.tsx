@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import type { BandwidthOverview, LiveStats, LiveStreams, UsenetStatsOverview } from '../api/types';
 import type { Resource } from '../hooks/useData';
-import { bytes, speed, count } from '../lib/format';
+import { bytes } from '../lib/format';
 import { providerHealth } from '../lib/health';
 import { Section, Empty, Status } from '../components/UI';
 import { Chart } from '../components/Chart';
@@ -14,7 +14,7 @@ import { SystemCard, RecentWarnings } from '../components/InstanceHealth';
 import type { SystemMetrics } from '../api/monitoringTypes';
 import type { LogSnapshot } from '../api/logTypes';
 import { StreamList } from '../components/StreamList';
-import { StreamCapacity } from '../components/StreamCapacity';
+import { LiveActivity } from '../components/LiveActivity';
 import { ServerVersion } from '../components/ServerVersion';
 
 export function Overview({ system, warnings, streams, usenet, bandwidth, loginUrl, open, navigate, stats, settings, save }: { system:Resource<SystemMetrics>; warnings:Resource<LogSnapshot>; streams: Resource<LiveStreams>; usenet: Resource<LiveStats>; bandwidth: Resource<BandwidthOverview>; loginUrl: string; open: (id: string) => void; navigate: () => void; stats: Resource<UsenetStatsOverview>; settings: Settings; save: (settings: Settings) => void }) {
@@ -26,14 +26,13 @@ export function Overview({ system, warnings, streams, usenet, bandwidth, loginUr
     try { const next = { ...settings, overview };saveSettings(next);save(next);setLayoutMessage('Overview layout saved.'); }
     catch { setLayoutError('Could not save the layout. Check your browser storage settings and try again.'); }
   };
-  const summary = streams.data?.summary;
   const providers = usenet.data?.pool.providers ?? [];
   const health = providers.map(p => providerHealth(p, stats.data?.providers.find(row => row.id === p.id)));
   const active = health.filter(p => p.state === 'active').length;
   const idle = health.filter(p => p.state === 'idle').length;
   const disabled = providers.length - active - idle;
   const issues = health.filter(p => p.warnings.length > 0).length;
-  const receiving = !streams.error && (streams.mode === 'live' || streams.mode === 'polling');
+  const shown = orderedOverview(settings.overview).filter(section => section.visible);
   const sections: Record<OverviewSectionId, ReactNode> = {
     version: <ServerVersion base={settings.baseUrl} loginUrl={loginUrl}/>,
     system: <SystemCard resource={system} loginUrl={loginUrl}/>,
@@ -55,18 +54,9 @@ export function Overview({ system, warnings, streams, usenet, bandwidth, loginUr
     {customizing && <><OverviewCustomizer layout={settings.overview} change={changeLayout}/>{layoutMessage && <p role="status" className="caption">{layoutMessage}</p>}{layoutError && <p role="alert" className="red">{layoutError}</p>}</>}
     <Status resource={streams} loginUrl={loginUrl}/>
     <Attention usenet={usenet} stats={stats} loginUrl={loginUrl} base={settings.baseUrl}/>
-    <div className="card overview-summary">
-      <div className="summary-heading"><span><i className={receiving ? 'green' : 'orange'}/> AIOStreams</span><small>{streams.error ? 'Updates unavailable' : streams.mode === 'live' ? 'Live activity' : streams.mode === 'polling' ? 'REST snapshot' : streams.data ? 'Last snapshot' : 'Connecting'}</small></div>
-      <div className="summary-grid">
-        <div className="metric summary-primary"><small>Live bandwidth</small><strong>{speed(summary?.totalBytesPerSec)}</strong></div>
-        <div className="summary-streams"><strong>{count(summary ? summary.streaming + summary.paused + summary.idle : undefined)}</strong><small>Active streams</small></div>
-        <div className="summary-secondary"><small>Usenet speed</small><strong>{speed(usenet.data?.live.currentBytesPerSec)}</strong></div>
-        <div className="summary-secondary"><small>Usenet errors / min</small><strong className={usenet.data?.live.errorsLastMinute ? 'orange' : ''}>{count(usenet.data?.live.errorsLastMinute)}</strong></div>
-      </div>
-      {summary && <div className="activity-breakdown"><span><i className="green"/>{count(summary.streaming)} streaming</span><span>{count(summary.paused)} paused</span><span>{count(summary.idle)} idle</span></div>}
-      <StreamCapacity snapshot={streams.data}/>
-    </div>
-    <div className="overview-content">{orderedOverview(settings.overview).map(section => <div key={section.id} data-overview-section={section.id} className={`overview-section ${section.id === 'streams' ? 'overview-streams' : ''}`}>
+    <LiveActivity streams={streams} usenet={usenet}/>
+    {!shown.length && <p className="notice">All sections are hidden. Choose Customize to add them back.</p>}
+    <div className="overview-content">{shown.map(section => <div key={section.id} data-overview-section={section.id} className={`overview-section ${section.id === 'streams' ? 'overview-streams' : ''}`}>
       {section.pinned && <span className="pinned-section">Pinned section</span>}{sections[section.id]}
     </div>)}</div>
   </>;

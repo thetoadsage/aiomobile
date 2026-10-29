@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { bandwidth, history, liveStreams, stats } from '../fixtures';
+import { bandwidth, history, stats } from '../fixtures';
 import { addonAnalytics } from '../usage-fixtures';
 test.beforeEach(async ({ context }) => { await context.request.get('/fixture/login'); });
 
@@ -23,13 +23,15 @@ test('Usenet history changes windows, keeps provider context and exposes removed
   await page.getByRole('button',{name:'All',exact:true}).click();await expect.poll(()=>windows.at(-1)).toBe('all');
 });
 
-test('stream capacity distinguishes open reads from activity and handles an unlimited cap', async ({ page }) => {
-  let limit=8;
-  await page.route('**/streams/live/stream',route=>route.abort());
-  await page.route('**/streams/live',route=>route.fulfill({json:{success:true,data:{...liveStreams,streams:[{...liveStreams.streams[0],activeReads:0},liveStreams.streams[1],{...liveStreams.streams[0],id:'idle-session',activity:'idle',activeReads:0}],summary:{...liveStreams.summary,idle:1,connectionLimit:limit}}}}));
-  await page.goto('/mobile/');await expect(page.locator('.stream-capacity')).toContainText('Global stream cap: 8 · 1 session reports open reads');
-  await page.getByRole('link',{name:'Streams',exact:true}).click();await expect(page.locator('.stream-capacity')).toContainText('Idle sessions use no slot');
-  limit=0;await page.getByRole('button',{name:'Refresh dashboard'}).click();await expect(page.locator('.stream-capacity')).toContainText('No global stream cap');
+test('Streams opens directly with current sessions and no capacity prose', async ({ page }) => {
+  await page.goto('/mobile/#streams');
+  await expect(page.locator('h1')).toHaveText('Active streams');
+  await expect(page.locator('.current-streams .stream-card')).toHaveCount(2);
+  await expect(page.locator('.stream-capacity')).toHaveCount(0);
+  await expect(page.getByText('Follow every session.')).toHaveCount(0);
+  const active = await page.locator('.current-streams').boundingBox();
+  const history = await page.locator('.stream-history').boundingBox();
+  expect(active!.y + active!.height).toBeLessThan(history!.y);
 });
 
 test('a failed live provider feed does not claim configured providers left the pool', async ({ page }) => {
@@ -62,7 +64,7 @@ test('user bandwidth trends preserve aggregate identity and only compare limits 
 
 test('stream history reports session span and requests, including missing ends and malformed responses', async ({ page }) => {
   await page.route('**/streams/history?*',route=>route.fulfill({json:{success:true,data:{entries:[{...history[0],startedAt:1000,lastSeenAt:601000,endedAt:undefined}],total:1}}}));
-  await page.goto('/mobile/#history');await page.getByText('Session details',{exact:true}).click();
+  await page.goto('/mobile/#streams');await page.getByText('Session details',{exact:true}).click();
   await expect(page.locator('.history-card')).toContainText('10m 0s');await expect(page.locator('.history-card')).toContainText('15');await expect(page.locator('.history-card')).toContainText('Not recorded');
   await page.unroute('**/streams/history?*');await page.route('**/streams/history?*',route=>route.fulfill({json:{success:true,data:{entries:[{...history[0],requests:'wrong'}],total:1}}}));
   await page.getByRole('button',{name:'Refresh dashboard'}).click();await expect(page.getByRole('alert')).toContainText('incompatible');await expect(page.locator('.history-card')).toContainText('10m 0s');
@@ -110,7 +112,8 @@ test('expanded usage views fit small phones and desktop in light and dark themes
     await page.evaluate(theme=>localStorage.setItem('aiomobile.preferences',JSON.stringify({theme})),theme);await page.reload();await page.setViewportSize({width,height:900});
     for(const route of ['usenet','provider/p1','history','addons','streams']) {
       await page.goto(`/mobile/#${route}`);await expect(page.locator('h1')).toBeVisible();await expect(page.locator('.skeletons')).toHaveCount(0);
-      if(route==='history'){await page.locator('.user-usage summary').first().click();await page.locator('.history-card summary').first().click();}
+      if(route==='history')await page.locator('.user-usage summary').first().click();
+      if(route==='streams')await page.locator('.history-card summary').first().click();
       if(route==='addons')await page.locator('.addon-card summary').first().click();
       expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
       if(route==='addons')expect(await page.getByLabel('Sort addons').evaluate(element=>element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);

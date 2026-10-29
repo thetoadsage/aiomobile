@@ -4,7 +4,7 @@ A mobile dashboard for your existing [AIOStreams](https://github.com/Viren070/AI
 
 AIOMobile is a static frontend. It uses AIOStreams' existing admin login and APIs, with no separate backend or credentials to configure.
 
-The current build, `b64eaf5f7dbce5b7` (2026-10-22), adds a compact Live connections panel with layered connection bars and per-connection speed. It also includes cumulative usage graphs, device-local health alert dismissal, AIOStreams version checks and Media Info coverage. See the [changelog](CHANGELOG.md) for the latest changes.
+The current build, `76ab7650f7558608` (2026-10-29), adds Overview section visibility controls, a compact live activity card that counts all current sessions, and current streams followed by searchable and sortable past sessions. History & Bandwidth focuses on usage. See the [changelog](CHANGELOG.md) for the latest changes.
 
 ## Screenshots
 
@@ -81,8 +81,8 @@ The new service handles only `/mobile/`. AIOStreams continues serving its own da
 
 | Screen | What it does |
 | --- | --- |
-| Overview | Current activity, dismissible health alerts, System health, recent warnings and AIOStreams version/build information; customize the section order. |
-| Streams | Search, filter and inspect active streams, with file position, configured global stream cap and reported open reads. |
+| Overview | Current activity, dismissible health alerts, System health, recent warnings and AIOStreams version/build information; show, hide, pin and reorder sections on this device. |
+| Streams | Inspect current streams and file position; browse past sessions with filename/user filters and newest/oldest paging. |
 | Usenet | Live throughput, retained activity trends, provider time windows/history, download capacity and segment-cache statistics. |
 | Logs | Follow server logs, search/filter, pause the view, copy or export entries. |
 | More | History & Bandwidth, Indexers, Addon health, Background tasks, Usenet Library, Media Info and Settings. |
@@ -101,7 +101,7 @@ Dismiss **Needs attention** alerts with the X, or expand the list to dismiss ind
 
 **Usenet** separates app-open live throughput from retained history. Its compact Live connections panel layers connections in use over open connections, with per-connection speed and tap-through provider details. Data and articles use filled, cumulative step graphs; tap the graph or use its slider to inspect a recorded bucket. Flat sections mean no additional activity recorded, and an absent bucket stays distinct from a recorded zero. Errors appear as dated counts. Provider details preserve the selected history window. Retention and resets limit coverage.
 
-**History & Bandwidth** adds cumulative global/per-user usage graphs and expandable session details. Graph totals sum retained buckets and can differ from summary totals at window boundaries. Select **Accounting period** to compare user usage with bandwidth limits; 24h/7d totals cover different windows. The configured monthly reset date determines the monthly period.
+**History & Bandwidth** adds cumulative global/per-user usage graphs. Past session details are on Streams. Graph totals sum retained buckets and can differ from summary totals at window boundaries. Select **Accounting period** to compare user usage with bandwidth limits; 24h/7d totals cover different windows. The configured monthly reset date determines the monthly period.
 
 **Addon health** shows retained preset requests, errors and average latency, with separate custom URL request counts. Choose 24h, 7d or All rollups. Collection and retention settings limit coverage; an empty window is not proof of healthy addons. Opening this screen does not call or test addons.
 

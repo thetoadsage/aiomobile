@@ -5,7 +5,7 @@ test.beforeEach(async ({ context }) => { await context.request.get('/fixture/log
 
 const routes = ['overview', 'streams', 'stream/stream-1', 'usenet', 'provider/p1', 'logs', 'indexers', 'history', 'settings', 'more'];
 const headings: Record<string, string> = {
-  overview: 'Overview', streams: 'Streams', 'stream/stream-1': 'The.Expanse.S01E01.2160p.mkv',
+  overview: 'Overview', streams: 'Active streams', 'stream/stream-1': 'The.Expanse.S01E01.2160p.mkv',
   usenet: 'Usenet', 'provider/p1': 'Primary provider', logs: 'Logs', indexers: 'Indexers',
   history: 'History & bandwidth', settings: 'Settings', more: 'More',
 };

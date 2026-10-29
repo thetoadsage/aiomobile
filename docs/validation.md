@@ -1,5 +1,12 @@
 # Validation
 
+## Overview section visibility — 2026-10-22
+
+- Local build `da717760cbbdb82a`: lint, all 65 unit tests, TypeScript and production build pass. All 34 focused Chromium/WebKit checks pass across monitoring UI and dashboard expansion.
+- Customize now offers a Show checkbox for every existing section. Hidden sections retain their pins and saved positions; movement skips hidden sections. Reload preserves visibility, older preferences default to shown, and Restore default layout shows every section again. An all-hidden layout remains recoverable through Customize.
+- Browser checks cover keyboard/focus behavior, failed-storage rollback, hide/add-back persistence, default restoration, no live-feed reconnects during layout edits and no API writes. Synthetic captures at 320px Sage, 390px Paper and 1280px Sage were visually reviewed; narrow rows stack consistently, with no horizontal overflow and at least 44px label targets. The mechanical detector reported no findings.
+- Documentation matches the new controls. Separately authorized static testing deployment verified all 10 current files and 33 retained fingerprints over trusted HTTPS with matching SHA256, mobile-root content and existing unauthenticated REST/SSE sign-in redirects. Rollback was validated before publication; standalone Compose/Nginx pass, and the four relevant services retain their health, identity, start times, restart counts and configuration hashes. No restarts, commit or push; authenticated production and physical iPhone/PWA behavior remain operator acceptance for this build.
+
 ## Compact provider connections — 2026-10-22
 
 - Local build `b64eaf5f7dbce5b7`: lint, 63 unit tests, TypeScript and production build pass.
@@ -184,3 +191,24 @@ No production log-clear, provider/indexer calls, deployment, container/configura
 ## Logs server testing deployment — 2026-10-03
 
 Explicitly authorized after local review. Deployed build 697e7bc3e307457d with rollback/source/static snapshots under `releases/logs-20261003T205653Z/`. All 10 current files return HTTPS 200 and match local SHA256; previous corrective assets remain available. The four relevant containers stayed healthy with identical IDs/start times/restart counts, and Compose/Nginx hashes match. Nginx validation and original v0.1.0 archive checksums pass. Existing Logs REST/SSE authentication returns 302 to /login without a session. No authenticated production log contents, clear action or provider activity was tested by the agent. Physical iPhone testing remains with the operator.
+
+## Live activity overview — 2026-10-29
+
+- Replaced the summary with three consistent readings: all current stream sessions (including paused/buffered and idle), throughput to clients, and throughput from Usenet. Removed duplicated session breakdown, per-minute errors and capacity prose from Overview; capacity details remain on Streams. The freshness indicator considers both feeds.
+- Build/typecheck, lint and 65 unit tests pass. Focused Chromium/WebKit coverage: 40 checks passed initially; the two capacity checks were updated for the intentional footer removal and passed on rerun. New checks cover active-only counts, unavailable versus zero data, periodic/live status and aligned compact typography.
+- Synthetic screenshots inspected at 320px and 390px in sage, 390px in paper and 1280px desktop. Captures remain in ignored `.impeccable/review/live-activity/`. Mechanical design scan has no findings. No deployment or physical-device validation in this change.
+
+## Streams and past sessions — 2026-10-29
+
+- Streams opens with current session cards and a concise Active streams heading. Removed subtitle/capacity prose and moved filtering below current sessions into Stream history. History & Bandwidth no longer fetches or renders session history.
+- Past sessions retain filename and exact username filters, All/Usenet/Proxy controls, details and twenty-row paging. Newest/oldest sorting traverses the full matching history through bounded API slices. Live session IDs are excluded defensively from historical cards. Existing missing-end details remain supported.
+- Build `6d057da3d18f7765`, typecheck, lint and 65 unit tests pass. Focused Chromium/WebKit checks: 54 initial passes plus two corrected prior-overview assertions passing on rerun; two additional empty-state checks passed. Final responsive checks passed in both browsers after correcting Safari's native select height.
+- Inspected active/history screenshots at 320px sage, 390px paper and 1280px sage, under ignored `.impeccable/review/streams-history/`. Mechanical design scan found no issues. No production deployment or physical iPhone validation.
+
+- Deployment follow-up (2026-10-29): build `6d057da3d18f7765` published with verified rollback backup; all 45 installed static files match SHA256 over HTTPS, mobile root matches index and unauthenticated REST/SSE/history requests remain protected. Service identities, health, start times, restart counts and configuration hashes unchanged. Physical-device/authenticated acceptance pending.
+
+## Live activity count correction — 2026-10-29
+
+- The card counts all current sessions, including buffered/paused and idle sessions, matching the Active streams list. Transfer rates remain measured byte throughput and can be zero during buffered playback.
+- Build `76ab7650f7558608`: lint, typecheck/build, 65 unit tests and all 10 focused Chromium/WebKit checks passed. Browser checks cover buffered sessions, live throughput updates, empty/error states and responsive layouts.
+- Deployed static files with verified backup, retained assets and unchanged container/configuration state. Physical-device acceptance remains user testing.

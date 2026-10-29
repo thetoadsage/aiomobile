@@ -43,10 +43,27 @@ describe('attention is evidence-based and links to specific sources', () => {
   });
 });
 
-describe('overview layout preserves every section', () => {
+describe('overview section preferences', () => {
   it('migrates partial layouts, removes duplicates, and ignores unknown sections', () => {
-    expect(normalizeOverview([{id:'tasks',pinned:true},{id:'bandwidth',pinned:true},{id:'bandwidth'},{id:'bogus'},null])).toEqual([{id:'bandwidth',pinned:true},{id:'streams',pinned:false},{id:'providers',pinned:false},{id:'system',pinned:false},{id:'warnings',pinned:false},{id:'version',pinned:false}]);
+    expect(normalizeOverview([{id:'tasks',pinned:true},{id:'bandwidth',pinned:true},{id:'bandwidth'},{id:'bogus'},null])).toEqual([{id:'bandwidth',pinned:true,visible:true},{id:'streams',pinned:false,visible:true},{id:'providers',pinned:false,visible:true},{id:'system',pinned:false,visible:true},{id:'warnings',pinned:false,visible:true},{id:'version',pinned:false,visible:true}]);
     expect(normalizeOverview('bad')).toEqual(defaultOverview());
+  });
+  it('retains explicit hidden preferences and defaults older or malformed visibility to shown', () => {
+    const layout=normalizeOverview([{id:'system',pinned:true,visible:false},{id:'streams',visible:'false'},{id:'providers',visible:null}]);
+    expect(layout[0]).toEqual({id:'system',pinned:true,visible:false});
+    expect(layout.slice(1).every(section=>section.visible)).toBe(true);
+    expect(normalizeOverview(JSON.parse(JSON.stringify(layout)))).toEqual(layout);
+    const hidden=defaultOverview().map(section=>({...section,visible:false}));
+    expect(normalizeOverview(hidden)).toEqual(hidden);
+  });
+  it('moves past hidden sections without losing their position or crossing pinned groups', () => {
+    const layout=defaultOverview();layout[1].visible=false;layout[4].visible=false;layout[4].pinned=true;
+    const moved=moveOverview(layout,'bandwidth',-1);
+    expect(moved.filter(section=>section.visible).map(section=>section.id)).toEqual(['bandwidth','streams','system','version']);
+    expect(moved.findIndex(section=>section.id==='providers')).toBe(orderedOverview(layout).findIndex(section=>section.id==='providers'));
+    expect(moveOverview(layout,'warnings',1)).toEqual(orderedOverview(layout));
+    expect(moveOverview(layout,'streams',-1)).toEqual(orderedOverview(layout));
+    expect(layout[0].id).toBe('streams');
   });
   it('pins first, reorders within groups, and does not mutate saved preferences', () => {
     const layout=defaultOverview();layout[2].pinned=true;

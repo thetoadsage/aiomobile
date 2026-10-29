@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { liveUsenet, liveStreams, stats } from '../fixtures';
+import { liveUsenet, stats } from '../fixtures';
 test.beforeEach(async ({ context }) => { await context.request.get('/fixture/login'); });
 
 test('attention links open the affected provider and indexer, with a route back', async ({ page }) => {
@@ -41,24 +41,16 @@ test('healthy idle sources stay quiet and missing health data is reported', asyn
   await expect(page.locator('.attention-body').getByRole('button',{name:'Retry'})).toBeVisible();
 });
 
-test('stream search combines with transport, sorting and refreshed data', async ({ page }) => {
-  let data=liveStreams;
-  await page.route('**/live/stream',route=>route.abort());
-  await page.route('**/streams/live',route=>route.fulfill({json:{success:true,data}}));
+test('history filters never hide current streams', async ({ page }) => {
   await page.goto('/mobile/#streams');
-  await expect(page.locator('.stream-card').first()).toContainText('Planet.Earth');
-  await page.getByLabel('Sort streams').selectOption('throughput');
-  await expect(page.locator('.stream-card').first()).toContainText('The.Expanse');
-  await page.getByLabel('Search streams').fill(' ALEX ');
-  await expect(page.locator('.stream-card')).toHaveCount(1);
-  await page.getByRole('button',{name:'Proxy',exact:true}).click();
-  await expect(page.getByText('No matching streams',{exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'Clear filters'}).click();
-  await expect(page.locator('.stream-card')).toHaveCount(2);
-  data={...liveStreams,streams:liveStreams.streams.map(s=>s.id==='stream-2' ? {...s,bytesPerSec:30*1024**2} : s)};
-  await page.getByRole('button',{name:'Refresh dashboard'}).click();
-  await expect(page.locator('.stream-card').first()).toContainText('Planet.Earth');
-  await expect(page.getByLabel('Sort streams')).toHaveValue('throughput');
+  await expect(page.locator('.current-streams .stream-card')).toHaveCount(2);
+  await page.getByLabel('Search filename').fill('Episode.1.');
+  await expect(page.locator('.history-card')).toHaveCount(1);
+  await page.locator('.stream-history').getByRole('button', { name: 'Proxy', exact: true }).click();
+  await expect(page.getByText('No matching history')).toBeVisible();
+  await expect(page.locator('.current-streams .stream-card')).toHaveCount(2);
+  await page.getByRole('button', { name: 'Clear filters' }).click();
+  await expect(page.locator('.history-card')).toHaveCount(20);
 });
 
 test('overview pins and ordering persist without reconnecting live feeds and restore defaults', async ({ page }) => {
@@ -79,6 +71,65 @@ test('overview pins and ordering persist without reconnecting live feeds and res
   await page.getByRole('button',{name:'Restore default layout'}).click();
   await expect.poll(order).toEqual(['streams','providers','bandwidth','system','warnings','version']);
   await page.reload();await expect.poll(order).toEqual(['streams','providers','bandwidth','system','warnings','version']);
+});
+
+test('overview sections hide and return with saved pins and order, including an empty layout', async ({ page }) => {
+  const writes:string[]=[];
+  page.on('request',r=>{if(r.url().includes('/api/') && r.method()!=='GET')writes.push(r.url());});
+  await page.goto('/mobile/');
+  await expect(page.locator('.topbar .connection')).toHaveText('Live');
+  let reconnects=0;page.on('request',r=>{if(r.url().includes('/live/stream'))reconnects++;});
+  const order=()=>page.locator('[data-overview-section]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('data-overview-section')));
+  await page.getByRole('button',{name:'Customize',exact:true}).click();
+  await page.getByRole('button',{name:'Pin Bandwidth',exact:true}).click();
+  const bandwidth=page.getByRole('checkbox',{name:'Show Bandwidth',exact:true});
+  await bandwidth.focus();await page.keyboard.press('Space');
+  await expect(bandwidth).toBeFocused();await expect(bandwidth).not.toBeChecked();
+  await expect.poll(order).toEqual(['streams','providers','system','warnings','version']);
+  await expect(page.getByRole('button',{name:'Pin Bandwidth',exact:true})).toBeDisabled();
+  await page.getByRole('checkbox',{name:'Show Usenet health',exact:true}).uncheck();
+  await page.getByRole('button',{name:'Move System up',exact:true}).click();
+  await expect.poll(order).toEqual(['system','streams','warnings','version']);
+  expect(reconnects).toBe(0);
+  await page.reload();
+  await expect.poll(order).toEqual(['system','streams','warnings','version']);
+  await page.getByRole('button',{name:'Customize',exact:true}).click();
+  await expect(bandwidth).not.toBeChecked();
+  await bandwidth.check();
+  await expect(page.getByRole('button',{name:'Pin Bandwidth',exact:true})).toHaveAttribute('aria-pressed','true');
+  await expect.poll(order).toEqual(['bandwidth','system','streams','warnings','version']);
+  for(const checkbox of await page.locator('.overview-customizer input[type=checkbox]').all())await checkbox.uncheck();
+  await expect(page.locator('[data-overview-section]')).toHaveCount(0);
+  await page.getByRole('button',{name:'Done',exact:true}).click();
+  await expect(page.getByText('All sections are hidden. Choose Customize to add them back.')).toBeVisible();
+  await page.reload();await expect(page.locator('[data-overview-section]')).toHaveCount(0);
+  await page.getByRole('button',{name:'Customize',exact:true}).click();
+  await bandwidth.check();await expect.poll(order).toEqual(['bandwidth']);
+  await page.getByRole('button',{name:'Restore default layout'}).click();
+  await expect.poll(order).toEqual(['streams','providers','bandwidth','system','warnings','version']);
+  for(const checkbox of await page.locator('.overview-customizer input[type=checkbox]').all())await expect(checkbox).toBeChecked();
+  await page.reload();await expect.poll(order).toEqual(['streams','providers','bandwidth','system','warnings','version']);
+  expect(writes).toEqual([]);
+});
+
+test('overview visibility controls fit phone and desktop layouts', async ({ page },testInfo) => {
+  for(const [width,theme] of [[320,'sage'],[390,'paper'],[1280,'sage']] as const){
+    await page.setViewportSize({width,height:844});
+    await page.goto('/mobile/');
+    await page.evaluate(theme=>localStorage.setItem('aiomobile.preferences',JSON.stringify({theme})),theme);
+    await page.reload();
+    await page.getByRole('button',{name:'Customize',exact:true}).click();
+    await page.getByRole('checkbox',{name:'Show AIOStreams version',exact:true}).uncheck();
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    const panel=page.locator('.overview-customizer');
+    for(const label of await panel.locator('label').all()){
+      const box=await label.boundingBox();expect(box!.height).toBeGreaterThanOrEqual(44);
+    }
+    if(testInfo.project.name==='webkit'){
+      await page.evaluate(()=>{(document.activeElement as HTMLElement)?.blur();window.scrollTo(0,0);});
+      await panel.screenshot({path:`.impeccable/review/overview-customizer/${width}-${theme}.png`,scale:'css'});
+    }
+  }
 });
 
 test('advanced settings collapse, preserve drafts, and reopen for validation errors', async ({ page }) => {
@@ -113,7 +164,7 @@ test('customization, search, attention and advanced settings fit small phones in
     await page.locator('.attention-panel > summary').click();
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
     await page.getByRole('link',{name:'Streams',exact:true}).click();
-    await expect(page.getByLabel('Search streams')).toBeVisible();
+    await expect(page.getByLabel('Search filename')).toBeVisible();
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
     await page.goto('/mobile/#settings');await page.locator('.advanced-settings > summary').click();
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
@@ -128,5 +179,8 @@ test('failed layout storage keeps the current order and shows a useful error', a
   await page.getByRole('button',{name:'Pin Bandwidth',exact:true}).click();
   await expect(page.getByRole('alert')).toContainText('Could not save the layout');
   await expect(page.getByRole('button',{name:'Pin Bandwidth',exact:true})).toHaveAttribute('aria-pressed','false');
+  await page.getByRole('checkbox',{name:'Show Bandwidth',exact:true}).click();
+  await expect(page.getByRole('alert')).toContainText('Could not save the layout');
+  await expect(page.getByRole('checkbox',{name:'Show Bandwidth',exact:true})).toBeChecked();
   expect(await page.locator('[data-overview-section]').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('data-overview-section')))).toEqual(['streams','providers','bandwidth','system','warnings','version']);
 });

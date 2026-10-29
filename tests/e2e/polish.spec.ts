@@ -147,7 +147,7 @@ test('empty states remain calm across monitoring screens',async({page})=>{
   await page.goto('/mobile/');await expect(page.getByText('All quiet here')).toBeVisible();
   await page.getByRole('link',{name:'Usenet',exact:true}).click();await expect(page.getByText('No providers in the pool')).toBeVisible();await expect(page.getByText('No Usenet activity · waiting for playback.')).toBeVisible();
   await page.goto('/mobile/#indexers');await expect(page.getByText('No indexer activity')).toBeVisible();
-  await page.getByRole('link',{name:'More',exact:true}).click();await page.getByRole('button',{name:/History & Bandwidth/}).click();await expect(page.getByText('No matching history')).toBeVisible();await expect(page.getByRole('alert')).toHaveCount(0);
+  await page.getByRole('link',{name:'Streams',exact:true}).click();await expect(page.getByText('No matching history')).toBeVisible();await expect(page.getByRole('alert')).toHaveCount(0);
 });
 
 test('indexer sorting highlights concrete failures and diagnostics stay local',async({page})=>{

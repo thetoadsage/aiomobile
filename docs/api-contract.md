@@ -23,7 +23,7 @@ All paths below have prefix `/api/v1/dashboard`. REST data is unwrapped from the
 - GET `/streams/live`, SSE `/streams/live/stream`: `LiveStreams`.
 - GET `/usenet/live`, SSE `/usenet/live/stream`: `LiveStats`, with metrics in `live` and providers in `pool.providers`.
 - GET `/streams/bandwidth?window=24h|7d|30d`: `BandwidthOverview`.
-- GET `/streams/history?limit=20&offset=0&username=...&transport=...&q=...`: `{ entries: StreamHistoryRow[], total: number }`. Search parameter is **q**, not search.
+- GET `/streams/history?limit=20&offset=0&username=...&transport=...&q=...`: `{ entries: StreamHistoryRow[], total: number }`. Search parameter is **q**, not search. This endpoint returns finished sessions in descending end-time order. Streams renders this history below current sessions; oldest-first paging uses a limit=1 count request and a reversed slice from the end, without unsupported server sort parameters. Filename and exact username filters remain separate.
 - GET `/usenet/stats?window=24h|7d|30d|all`: `UsenetStatsOverview` including providers, indexers, and aggregate throughput.
 - DELETE `/streams/sessions/:id`: `{ stopped: true }`, 404 if absent. Only invoked after a confirmation.
 

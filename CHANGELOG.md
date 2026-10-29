@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Streams opens with current sessions, followed by past-stream history with filename/user search, transport filters and newest/oldest paging. Removed introductory/capacity prose and relocated stream history out of History & Bandwidth.
+
+- Compact live activity overview with aligned active-session, client throughput and Usenet throughput readings; buffered/paused and idle sessions remain included in the active count, and feed freshness covers both sources.
+
+- Overview customization can hide sections and add them back, preserving their saved pins and order; restore defaults shows every section again.
 - Compact Live connections panel above Usenet history, with layered in-use/open capacity bars, provider warning summaries and per-connection speed labels.
 
 - Cumulative step graphs for retained Usenet data/articles and global/per-user bandwidth, with touch and keyboard bucket inspection. Missing buckets remain distinct from recorded zeroes; Usenet errors use dated counts.
