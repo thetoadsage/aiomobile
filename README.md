@@ -8,11 +8,11 @@ The current build, `76ab7650f7558608` (2026-10-29), adds Overview section visibi
 
 ## Screenshots
 
-Screenshots use synthetic demo data; some captures predate the latest layout refinements. The header icon follows the selected theme.
+Screenshots captured from the current UI on October 29, 2026, using synthetic demo data. The header icon follows the selected theme.
 
 | Overview · Sage | Streams · Sage | Usenet · Sage |
 | :---: | :---: | :---: |
-| <img src="docs/screenshots/readme/overview.png" width="240" alt="Overview with live activity and active streams in the Sage theme"> | <img src="docs/screenshots/readme/streams.png" width="240" alt="Active streams with search, filters, stream capacity and file position in the Sage theme"> | <img src="docs/screenshots/readme/usenet.png" width="240" alt="Usenet live throughput, recorded activity and provider history in the Sage theme"> |
+| <img src="docs/screenshots/readme/overview.png" width="240" alt="Overview with live activity and active streams in the Sage theme"> | <img src="docs/screenshots/readme/streams.png" width="240" alt="Current stream sessions with file position, followed by searchable stream history in the Sage theme"> | <img src="docs/screenshots/readme/usenet.png" width="240" alt="Usenet live throughput, recorded activity and provider history in the Sage theme"> |
 
 <details>
 <summary>More screens and themes</summary>
