@@ -5,6 +5,8 @@ import type { Settings } from '../lib/settings';
 import { count } from '../lib/format';
 import { Empty, Facts, Section, Status } from '../components/UI';
 import { Pagination } from '../components/Pagination';
+import { AddonErrorRates } from '../components/AddonErrorRates';
+import { AddonResponseTimes } from '../components/AddonResponseTimes';
 export function Addons({ settings, loginUrl }: { settings: Settings; loginUrl: string }) {
   const [range,setRange] = useState<AddonRange>('24h');
   const [search,setSearch] = useState('');
@@ -19,6 +21,8 @@ export function Addons({ settings, loginUrl }: { settings: Settings; loginUrl: s
       <Status resource={resource} loginUrl={loginUrl}/>
       {resource.data && <div className="card addon-summary"><Facts items={[["Preset requests",count(resource.data.total)],["Custom URL requests",count(resource.data.customEndpoints)]]}/><p className="caption">Custom URL requests are counted separately; per-addon results below cover preset URLs.</p></div>}
       <p className="caption">{range === 'all' ? 'All retained daily rollups; this is not a fixed 30-day window.' : 'Recent recorded events; collection and retention settings may shorten coverage.'} These results are separate from Usenet providers and indexer imports.</p>
+      {resource.data && rows.length > 0 && <AddonErrorRates addons={rows} range={range}/>}
+      {resource.data && rows.length > 0 && <AddonResponseTimes addons={rows} range={range}/>}
       <Section title="Addon results"><div className="filters"><label>Search addons<input type="search" value={search} onChange={event => {setSearch(event.target.value);setOffset(0);}} placeholder="Preset name…"/></label><label>Sort addons<select value={sort} onChange={event => {setSort(event.target.value as typeof sort);setOffset(0);}}><option value="errors">Highest error rate</option><option value="latency">Slowest average response</option><option value="requests">Most requests</option></select></label></div>
         <div className="stack">{rows.slice(offset,offset+20).map((row,index) => <article className="card addon-card" key={`${row.presetId}:${index}`}>
           <h3>{row.presetId || 'Unnamed preset'}</h3>

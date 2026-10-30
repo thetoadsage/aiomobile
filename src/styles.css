@@ -694,3 +694,42 @@ button:active:not(:disabled), .button:active { transform: translateY(1px); }
 .success-bar-scale { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; margin-top: 6px; }
 .indexer-success .success-bars-note { padding-top: 14px; margin-top: 18px; border-top: 1px solid var(--line); }
 @media (max-width: 380px) { .indexer-success { padding: 16px; } }
+
+/* Addon error and response charts share their layout, bar treatment and labels. */
+.addon-bar-chart { padding: 24px; margin-bottom: 24px; }
+.response-chart-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.response-chart-heading h2 { font-size: 21px; }
+.response-chart-heading button { flex-shrink: 0; white-space: nowrap; }
+.addon-bar-chart > p { margin-top: 5px; font-size: 12px; }
+.response-bars { list-style: none; padding: 0; margin: 20px 0 0; }
+.response-row { display: grid; grid-template-columns: minmax(0,26%) minmax(0,1fr); align-items: center; gap: 8px; padding: 4px 0; min-height: 40px; }
+.response-addon-name { font-size: 14px; line-height: 20px; text-align: right; overflow-wrap: anywhere; }
+.response-plot { min-width: 0; border-inline-start: 1px solid var(--control-line); }
+.response-bar { position: relative; height: 32px; background: var(--accent); border-radius: 2px; container: response-fill / inline-size; }
+.response-bar-value { position: absolute; inset-inline-start: calc(100% + 6px); top: 50%; transform: translateY(-50%); white-space: nowrap; font-size: 13px; line-height: 20px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text); }
+@container response-fill (min-width: 96px) {
+  .response-bar-value { inset-inline-start: 0; width: 100%; text-align: center; color: var(--on-accent); }
+}
+.response-unavailable { color: var(--muted); font-size: 13px; padding-inline-start: 7px; }
+.response-axis { margin-inline-start: calc(26% + 8px); margin-top: 2px; }
+.response-axis-ticks { position: relative; height: 32px; border-top: 1px solid var(--control-line); }
+.response-axis-ticks > span { position: absolute; padding-top: 8px; font-size: 11px; color: var(--muted); transform: translateX(-50%); font-variant-numeric: tabular-nums; }
+.response-axis-ticks > span::before { content: ''; position: absolute; top: 0; left: 50%; height: 5px; border-inline-start: 1px solid var(--control-line); }
+.response-axis-ticks > span:first-child { transform: none; }
+.response-axis-ticks > span:first-child::before { left: 0; }
+.response-axis-ticks > span:last-child { transform: translateX(-100%); }
+.response-axis-ticks > span:last-child::before { left: 100%; }
+.response-axis-title { display: block; text-align: center; font-size: 12px; color: var(--muted); }
+.response-data { margin-top: 20px; }
+.response-data table { border-collapse: collapse; width: 100%; table-layout: fixed; font-size: 12px; }
+.response-data caption { color: var(--muted); text-align: left; margin-bottom: 8px; }
+.response-data th, .response-data td { padding: 10px 6px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; text-align: right; font-variant-numeric: tabular-nums; }
+.response-data th:first-child { text-align: left; width: 40%; }
+.response-data thead th { color: var(--muted); font-weight: 500; }
+@media (max-width: 380px) { .addon-bar-chart { padding: 16px; } }
+
+@media (max-width: 600px) {
+  .response-row { grid-template-columns: minmax(0,1fr); gap: 4px; padding: 6px 0; }
+  .response-addon-name { text-align: left; }
+  .response-axis { margin-inline-start: 0; }
+}

@@ -1,5 +1,14 @@
 # Validation
 
+## Addon error and response-time charts — 2026-10-30
+
+- Build `e79013df6e4c2415` adds matching horizontal error-rate and average-response-time sections to More → Addon health, with shared chart styling, inline/outside values, responsive labels, accessible meters and independent View data tables. Both use the existing preset aggregates; no endpoint, dependency or server change is required.
+- Lint, TypeScript/production build and all 75 unit tests pass. All 12 focused Chromium/WebKit cases pass across addon charts, existing addon monitoring/recovery/responsiveness and Indexers success bars. This is targeted browser coverage, not a new full-suite run.
+- Coverage includes a common millisecond scale and proportional bar geometry, exact percentage units, independent data disclosures with error/request counts, recorded zero, missing latency, no requests, selected period, search, card-sort independence, read-only requests, offscreen suspension, unavailable/auth/malformed/empty states and existing Indexers behavior. Synthetic captures at 320px Paper, 390px Sage and 1280px Sage were reviewed; the mechanical detector and whitespace checks report no findings.
+- The deployed static build and retained assets were verified by SHA256 over trusted HTTPS, including the mobile root, service-worker and immutable-asset headers. Addon analytics, Streams REST/SSE and history still redirect unauthenticated requests to sign-in. A rollback backup was verified; container and configuration state stayed unchanged, with no restart.
+- Addon windows remain 24H, 7D and All rollups. Inspection of the running server confirmed that its 30d and all addon queries both sum all retained daily rows. The charts use the existing server APIs and do not change AIOStreams source or configuration. Collection/retention limits and missing readings remain explicit.
+- Automated chart checks use synthetic data. Authenticated production interactions and physical iPhone/PWA behavior were not independently validated for this build. Local project memory, private deployment evidence and review captures stay outside this publication.
+
 ## Provider groups and Indexer charts — 2026-10-29
 
 - Build `6cbd62111ef8bc0e`: lint, TypeScript/production build and 66 unit tests pass. All 20 combined provider-connection and indexer-outcome browser cases pass in Chromium/WebKit.

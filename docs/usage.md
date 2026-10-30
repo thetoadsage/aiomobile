@@ -42,7 +42,11 @@ Transfers below **64 KiB** (shown as 64 KB in the app) are hidden from active ca
 
 **History & Bandwidth** adds cumulative global/per-user usage graphs. Past session details are on Streams. Graph totals sum retained buckets and can differ from summary totals at window boundaries. Select **Accounting period** to compare user usage with bandwidth limits; 24h/7d totals cover different windows. The configured monthly reset date determines the monthly period.
 
-**Addon health** shows retained preset requests, errors and average latency, with separate custom URL request counts. Choose 24h, 7d or All rollups. Collection and retention settings limit coverage; an empty window is not proof of healthy addons. Opening this screen does not call or test addons.
+**Addon health** shows matching horizontal charts for **Error rate by addon** and **Avg. response times**, followed by detailed addon cards. Error rates use a shared 0–100% scale; response times use a shared millisecond scale. Both charts show the highest values first. Names appear on the left on larger screens and above the bars on phones; short bars place their values outside the fill. Choose **View data** on either chart to see its values and request counts, plus recorded error counts for error rates.
+
+Choose **24H**, **7D** or **All rollups**. All rollups covers all retained daily aggregates, not a fixed month. A separate 30D option is omitted because the supported AIOStreams addon API returns the same unfiltered rollups for 30d and all.
+
+Search filters both charts and the detailed cards. Charts include all matching addons across card pages; the card sort control does not change chart ordering. A recorded zero stays 0.0% or 0 ms, a missing response time stays Unavailable, and an addon with no requests has no chart value. Custom URL request counts remain separate from the per-preset charts. Collection and retention settings limit coverage; an empty window or no recorded errors is not proof of current availability. Opening this screen does not call or test addons.
 
 ## Preferences and refresh
 

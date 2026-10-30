@@ -34,7 +34,7 @@ Connects to your existing [AIOStreams](https://github.com/Viren070/AIOStreams) i
 
 - **See what’s streaming.** Live speeds, furthest observed file position and searchable session history. Tiny transfers stay hidden by default; show them in Settings.
 - **Watch Usenet activity.** Provider priority groups, live connections, throughput and retained usage charts.
-- **Check imports and health.** Indexer outcomes, success rates, addon health, background tasks and media information.
+- **Check imports and health.** Indexer outcomes, success rates, addon error/response-time charts, background tasks and media information.
 - **Make it yours.** Five themes, customizable Overview sections and a Home Screen app on iPhone.
 
 Static frontend, no separate backend. Monitoring data stays out of the offline cache.
