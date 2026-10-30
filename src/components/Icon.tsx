@@ -1,5 +1,7 @@
-export type IconName = 'library' | 'media' | 'check' | 'appearance' | 'logs' | 'filter' | 'overview' | 'streams' | 'usenet' | 'history' | 'more' | 'arrow' | 'back' | 'refresh' | 'settings' | 'indexers' | 'download' | 'activity' | 'close';
+export type IconName = 'sortAscending' | 'sortDescending' | 'library' | 'media' | 'check' | 'appearance' | 'logs' | 'filter' | 'overview' | 'streams' | 'usenet' | 'history' | 'more' | 'arrow' | 'back' | 'refresh' | 'settings' | 'indexers' | 'download' | 'activity' | 'close';
 const paths: Record<IconName, string> = {
+  sortAscending: 'M7 20V4 m-4 4 4-4 4 4 M14 7h3 M14 12h5 M14 17h7',
+  sortDescending: 'M7 4v16 m-4-4 4 4 4-4 M14 7h7 M14 12h5 M14 17h3',
   library: 'M4 4h4v16H4z M10 4h4v16h-4z m7 1 4 14-4 1-4-14z',
   media: 'M4 4h16v16H4z M8 4v16 M16 4v16 M4 8h4 M4 16h4 M16 8h4 M16 16h4 m-9-6 3 2-3 2z',
   check: 'm5 12 4 4L19 6', appearance: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18 M12 3v18 M12 7h5 M12 11h8 M12 15h7',

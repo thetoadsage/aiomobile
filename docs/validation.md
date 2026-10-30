@@ -1,5 +1,13 @@
 # Validation
 
+## Provider groups and Indexer charts — 2026-10-29
+
+- Build `6cbd62111ef8bc0e`: lint, TypeScript/production build and 66 unit tests pass. All 20 combined provider-connection and indexer-outcome browser cases pass in Chromium/WebKit.
+- Coverage includes priority/backup ordering, shared-group labels, missing/removed provider metadata, keyboard detail navigation, small/long labels, empty pools, proportional tile areas, unclipped consistent names, visible small-share keys, selected windows/indexer routes, all six sort combinations, unchanged chart ordering, successful/degraded counts and no-grab/inconsistent snapshots. Treemap unit coverage verifies area conservation and no overlaps for skewed and crowded distributions.
+- Synthetic 320px/390px phone and 1280px desktop captures were reviewed in Paper/Sage themes. Monitoring remains read-only, with existing refresh/auth and cache boundaries. These focused checks do not imply a full-suite run.
+- Authorized static deployments verified all current build files by SHA256 over trusted HTTPS, retained previous fingerprints and verified rollback backups. Final deployment preserved container/config state and required no restarts. Physical-device feedback drove the tile-label fixes; authenticated payload coverage remains limited to operator testing.
+
+
 ## Overview section visibility — 2026-10-22
 
 - Local build `da717760cbbdb82a`: lint, all 65 unit tests, TypeScript and production build pass. All 34 focused Chromium/WebKit checks pass across monitoring UI and dashboard expansion.

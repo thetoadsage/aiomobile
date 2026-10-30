@@ -4,11 +4,11 @@ A mobile dashboard for your existing [AIOStreams](https://github.com/Viren070/AI
 
 AIOMobile is a static frontend. It uses AIOStreams' existing admin login and APIs, with no separate backend or credentials to configure.
 
-The current build, `76ab7650f7558608` (2026-10-29), adds Overview section visibility controls, a compact live activity card that counts all current sessions, and current streams followed by searchable and sortable past sessions. History & Bandwidth focuses on usage. See the [changelog](CHANGELOG.md) for the latest changes.
+The current build, `6cbd62111ef8bc0e` (2026-10-29), adds provider priority groups and backup cards, indexer import outcomes and grab-share tiles, per-indexer success bars, and independent sort subject/direction controls. It also includes Overview customization and searchable past stream sessions. See the [changelog](CHANGELOG.md) for the latest changes.
 
 ## Screenshots
 
-Screenshots captured from the current UI on October 29, 2026, using synthetic demo data. The header icon follows the selected theme.
+Screenshots captured on October 29, 2026, using synthetic demo data, before the latest provider grouping and indexer chart additions. The header icon follows the selected theme.
 
 | Overview · Sage | Streams · Sage | Usenet · Sage |
 | :---: | :---: | :---: |
@@ -99,7 +99,9 @@ Dismiss **Needs attention** alerts with the X, or expand the list to dismiss ind
 
 **Streams** reports the latest read’s file position, including its starting offset. Buffering and seeking can make it differ from playback progress; it is unavailable between reads. The configured global stream cap and reported sessions with open reads are separate signals, and replica snapshots may omit reads.
 
-**Usenet** separates app-open live throughput from retained history. Its compact Live connections panel layers connections in use over open connections, with per-connection speed and tap-through provider details. Data and articles use filled, cumulative step graphs; tap the graph or use its slider to inspect a recorded bucket. Flat sections mean no additional activity recorded, and an absent bucket stays distinct from a recorded zero. Errors appear as dated counts. Provider details preserve the selected history window. Retention and resets limit coverage.
+**Usenet** separates app-open live throughput from retained history. Its Live connections panel groups providers into separate Primary, Secondary and Backup cards, retaining configured priority numbers and labeling shared-priority groups as load balanced. Each provider row layers connections in use over open connections, with per-connection speed and tap-through provider details. Data and articles use filled, cumulative step graphs; tap the graph or use its slider to inspect a recorded bucket. Flat sections mean no additional activity recorded, and an absent bucket stays distinct from a recorded zero. Errors appear as dated counts. Provider details preserve the selected history window. Retention and resets limit coverage.
+
+**Indexers** shows the selected window’s import completion rate, OK/degraded/failed outcomes, proportional grab-share tiles with a full name/value key, and individual success-rate bars. Success includes degraded imports; indexers with no grabs have no success percentage. Below the charts, choose Grabs, Success rate or Failures and toggle Ascending/Descending to sort the detailed cards.
 
 **History & Bandwidth** adds cumulative global/per-user usage graphs. Past session details are on Streams. Graph totals sum retained buckets and can differ from summary totals at window boundaries. Select **Accounting period** to compare user usage with bandwidth limits; 24h/7d totals cover different windows. The configured monthly reset date determines the monthly period.
 

@@ -102,3 +102,19 @@ Source evidence: `packages/core/src/stream-sessions/{service,bandwidth}.ts`, `pa
 ## Live connections presentation — 2026-10-22
 
 The compact provider panel follows the layered-bar approach in upstream `packages/frontend/src/app/dashboard/usenet/stats-page.tsx` at `89312b535f7e1eda9c81b1f0de3b62730bd7e22e`. Faint width is `total/max`; solid width is `acquired/max`, labeled in use rather than proof of active transfer. Provider speed is the sampled per-connection EWMA, which can persist while idle. Existing `/usenet/live` fields and refresh lifecycle are reused; `total` is now checked for a finite numeric value. Warning summaries open existing provider details and preserve the selected history window.
+
+## Provider priority groups — 2026-10-29
+
+Live connections joins pool providers to nonremoved `/usenet/stats` rows by ID and matching backup flag to obtain `priority`. Groups use both priority and backup status, with regular groups first and ascending priority within each tier. The first two known regular groups are labeled Primary/Secondary; configured numbers remain visible. Shared known-priority groups are labeled Load balanced; missing/invalid priorities remain unavailable and never imply balancing. Existing snapshots can lag configuration changes.
+
+Source of truth: [official Usenet guide](https://docs.aiostreams.viren070.me/guides/usenet/#dashboard-setup-once-per-instance) for ordering and backup fallback, supplemented by upstream `packages/frontend/src/app/dashboard/usenet/_components/provider-editor.tsx` for equal-priority load balancing. No configuration requests or writes are added.
+
+## Indexer outcome visualization — 2026-10-29
+
+The Indexers chart reuses received `/usenet/stats` indexer aggregates for the selected window and optional exact-indexer route. Completion is `(sum(ok) + sum(degraded)) / sum(grabs)`, matching upstream import-time success semantics; it does not report playback or whole-file availability. Stacked outcomes require nonnegative integer counts and `ok + degraded + failed == grabs`; inconsistent counts suppress the completion display. No-grab windows omit the chart.
+
+Grab-share tiles use each displayed indexer's grabs divided by the displayed total, sorted by grab count and partitioned into proportional rectangular areas. Zero-grab indexers retain their existing details but receive no area. An always-visible color-matched key exposes every nonzero indexer's name, count and percentage, including tiles too small to label. Tile names use one font size; size container queries reserve complete name lines before displaying percentages or grab counts. No timeline, new request, configuration write, or probe is added.
+
+## Per-indexer success bars — 2026-10-29
+
+The separate Success rate by indexer section follows Import outcomes and precedes the card-sort controls. It uses existing selected-window, exact-indexer-filtered aggregates, with `(ok + degraded) / grabs`, matching upstream success semantics. Received snapshot window metadata labels the chart so retained data does not acquire the requested window label before refresh completes. Nonnegative integer counters must partition the grab total before a meter is displayed; zero grabs has no percentage and inconsistent counts are unavailable. Rows sort highest success first, alphabetically for ties, independently of the detail-card sort controls. All bars use the same 0–100% scale and accessible meter values. No extra requests, writes or probes.

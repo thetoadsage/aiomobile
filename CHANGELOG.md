@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Added per-indexer Success bars below Import outcomes, with selected-window percentages, successful grab counts, a shared 0–100% scale and explicit no-grab/unavailable states.
+
+- Indexer sorting separates the subject (Grabs, Success rate, Failures) from a labeled ascending/descending arrow button, immediately above the sortable cards.
+
+- Indexers adds an import completion summary, stacked OK/degraded/failed bar, and area-proportional grab-share tiles for the selected time window, with an always-visible share key and consistently sized tile names that take precedence over percentages in small tiles.
+
+- Usenet Live connections uses separate cards with shaded headers for each priority group, labels Primary/Secondary/Backup tiers, and identifies shared load-balanced groups. Missing priority remains explicit.
+
 - Streams opens with current sessions, followed by past-stream history with filename/user search, transport filters and newest/oldest paging. Removed introductory/capacity prose and relocated stream history out of History & Bandwidth.
 
 - Compact live activity overview with aligned active-session, client throughput and Usenet throughput readings; buffered/paused and idle sessions remain included in the active count, and feed freshness covers both sources.
