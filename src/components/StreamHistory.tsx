@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { StreamHistoryRow } from '../api/types';
+import { loadFilteredHistory } from '../api/streamHistory';
+import type { FilteredHistoryPage } from '../api/streamHistory';
 import { useData } from '../hooks/useData';
 import type { Settings } from '../lib/settings';
 import { bytes, date, duration, count } from '../lib/format';
@@ -33,7 +35,10 @@ export function StreamHistory({ settings, loginUrl, activeIds }: { settings: Set
       <div className="segmented" aria-label="History transport">{['', 'usenet', 'proxy'].map(value => <button key={value} aria-pressed={transport === value} onClick={() => setTransport(value)}>{value === '' ? 'All' : value === 'usenet' ? 'Usenet' : 'Proxy'}</button>)}</div>
       <label className="sort-control">Sort history<select value={sort} onChange={event => setSort(event.target.value as HistorySort)}><option value="recent">Newest first</option><option value="oldest">Oldest first</option></select></label>
     </div>
-    <HistoryResults key={`${filters}:${sort}`} filters={filters} sort={sort} settings={settings} loginUrl={loginUrl} activeIds={activeIds}/>
+    {settings.showAllTransfers
+      ? <HistoryResults key={`${filters}:${sort}`} filters={filters} sort={sort} settings={settings} loginUrl={loginUrl} activeIds={activeIds}/>
+      : <FilteredHistoryResults key={`${filters}:${sort}`} filters={filters} sort={sort} settings={settings} loginUrl={loginUrl} activeIds={activeIds}/>}
+
   </section>;
 }
 
@@ -56,7 +61,26 @@ function HistoryResults({ filters, sort, settings, loginUrl, activeIds }: { filt
   return <>
     {oldest && <Status resource={index} loginUrl={loginUrl}/>}
     {(!oldest || index.data) && <Status resource={history} loginUrl={loginUrl}/>}
-      <div className="stack">{rows?.map(s=>{const span=historyDuration(s);return <div className="card history-card" key={s.id}><h3>{s.filename || 'Unnamed stream'}</h3><p>{s.username || 'Unidentified streams'} · {date(s.startedAt)}</p><div className="stream-badges"><Badge>{s.transport === 'usenet' ? 'Usenet' : 'Proxy'}</Badge><Badge>{s.endReason || 'Ended'}</Badge><span className="stream-speed">{bytes(s.bytesServed)}</span></div><details className="secondary-facts"><summary>Session details</summary><Facts items={[["Session span",span === undefined ? 'Unavailable' : duration(span)],["Requests",count(s.requests)],["Last activity",date(s.lastSeenAt)],["Ended",s.endedAt === undefined ? 'Not recorded' : date(s.endedAt)]]}/><p className="caption">Session span runs from start to recorded end, or last activity when no end is recorded. It can include pauses and idle time.</p></details></div>;})}{rows && !rows.length && <Empty title="No matching history">Try a different filter or wait for a stream to finish.</Empty>}</div>
+    <HistoryCards rows={rows}/>{rows && !rows.length && <Empty title="No matching history">Try a different filter or wait for a stream to finish.</Empty>}
     <div className="pagination"><button disabled={!page || history.loading} onClick={() => setPage(value => Math.max(0, value - 1))}>Previous</button><span>{resultTotal ? `${page * 20 + 1}–${Math.min((page + 1) * 20, resultTotal)} of ${resultTotal}` : '0 results'}</span><button disabled={history.loading || !history.data || (page + 1) * 20 >= resultTotal} onClick={() => setPage(value => value + 1)}>Next</button></div>
   </>;
+}
+
+function FilteredHistoryResults({ filters, sort, settings, loginUrl, activeIds }: { filters: string; sort: HistorySort; settings: Settings; loginUrl: string; activeIds: string[] }) {
+  const [cursors, setCursors] = useState([0]);
+  const page = cursors.length - 1;
+  const history = useData<FilteredHistoryPage>(settings.baseUrl, `/streams/history?${filters}&_sort=${sort}&_cursor=${cursors[page]}`, settings.historySeconds, true, false, 1, false, loadFilteredHistory);
+  const rows = history.data?.entries.filter(stream => !activeIds.includes(stream.id));
+  const busy = history.loading || history.refreshing;
+  return <>
+    <Status resource={history} loginUrl={loginUrl}/>
+    <HistoryCards rows={rows}/>
+    {rows && !rows.length && <Empty title={history.data?.hasMore ? 'No larger transfers in these records' : 'No matching history'}>{history.data?.hasMore ? 'Choose Next to check more history, or enable Show all transfers under More → Settings.' : 'Try a different filter or enable Show all transfers under More → Settings.'}</Empty>}
+    {history.data && <p className="caption">{history.data.hidden} tiny transfer{history.data.hidden === 1 ? '' : 's'} hidden in {history.data.scanned} checked records.{history.data.hasMore && !rows?.length ? ' More history is available.' : ''}</p>}
+    <div className="pagination"><button disabled={!page || busy} onClick={() => setCursors(value => value.slice(0, -1))}>Previous</button><span>Page {page + 1}</span><button disabled={busy || Boolean(history.error) || !history.data?.hasMore} onClick={() => { const next = history.data?.nextCursor; if (next !== undefined) setCursors(value => [...value, next]); }}>Next</button></div>
+  </>;
+}
+
+function HistoryCards({ rows }: { rows?: StreamHistoryRow[] }) {
+  return <div className="stack">{rows?.map(s=>{const span=historyDuration(s);return <div className="card history-card" key={s.id}><h3>{s.filename || 'Unnamed stream'}</h3><p>{s.username || 'Unidentified streams'} · {date(s.startedAt)}</p><div className="stream-badges"><Badge>{s.transport === 'usenet' ? 'Usenet' : 'Proxy'}</Badge><Badge>{s.endReason || 'Ended'}</Badge><span className="stream-speed">{bytes(s.bytesServed)}</span></div><details className="secondary-facts"><summary>Session details</summary><Facts items={[["Session span",span === undefined ? 'Unavailable' : duration(span)],["Requests",count(s.requests)],["Last activity",date(s.lastSeenAt)],["Ended",s.endedAt === undefined ? 'Not recorded' : date(s.endedAt)]]}/><p className="caption">Session span runs from start to recorded end, or last activity when no end is recorded. It can include pauses and idle time.</p></details></div>;})}</div>;
 }

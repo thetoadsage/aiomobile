@@ -4,7 +4,44 @@ AIOMobile is a static monitoring PWA for an existing AIOStreams instance. Serve 
 
 The deployment archive includes `compose.yaml`, `nginx.conf`, `.env.example`, `site/mobile/`, LICENSE, and NOTICE. The source archive includes the React app, pinned npm lockfile, build/test scripts, and documentation.
 
-## First install with Traefik
+## Install from source with Traefik
+
+Requires Node.js **22.18+**, npm, Docker Compose and an existing Traefik setup.
+
+```sh
+git clone https://github.com/thetoadsage/aiomobile.git
+cd aiomobile
+npm ci
+npm run build
+mkdir -p deploy/site/mobile
+cp -R dist/. deploy/site/mobile/
+cp deploy/.env.example deploy/.env
+```
+
+Edit `deploy/.env` to match your existing setup:
+
+```dotenv
+AIOSTREAMS_HOSTNAME=aio.example.com
+AIO_DOCKER_NETWORK=aio_network
+AIO_TLS_RESOLVER=letsencrypt
+AIO_AUTH_MIDDLEWARE=authelia@docker
+```
+
+Use only the hostname for `AIOSTREAMS_HOSTNAME`, without `https://` or `/mobile/`. The other values must name your existing Docker network, TLS resolver and authentication middleware.
+
+Start the standalone static service:
+
+```sh
+cd deploy
+docker compose -p aiomobile config --quiet
+docker compose -p aiomobile run --rm --no-deps aiomobile -t
+docker compose -p aiomobile up -d --no-deps aiomobile
+docker compose -p aiomobile ps
+```
+
+Open `https://YOUR-AIOSTREAMS-HOST/mobile/` and sign in with an AIOStreams admin account. Leave the app's **AIOStreams base URL** setting blank. If your proxy uses Authelia, sign in there first. Keep this service separate from the existing AIOStreams Compose project. You can also build on another machine and copy the prepared `deploy/` directory to the server before starting Compose.
+
+## Install from a release archive
 
 1. Verify the archive against SHA256SUMS before extracting.
 2. Extract the deployment archive to a new standalone app directory. Keep it outside the parent Compose include list.

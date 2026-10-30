@@ -3,6 +3,7 @@ import type { BandwidthOverview, LiveStats, LiveStreams, UsenetStatsOverview, Us
 import { applyTheme } from './lib/themes';
 import { diagnose } from './lib/diagnostics';
 import { useData } from './hooks/useData';
+import { useStreamPositions } from './hooks/useStreamPositions';
 import { loadSettings, type Settings as Preferences } from './lib/settings';
 import { Icon, type IconName } from './components/Icon';
 import { BrandMark } from './components/BrandMark';
@@ -25,7 +26,7 @@ const navigation: { id:string; label:string; icon:IconName }[] = [
   {id:'overview',label:'Overview',icon:'overview'},{id:'streams',label:'Streams',icon:'streams'},
   {id:'usenet',label:'Usenet',icon:'usenet'},{id:'logs',label:'Logs',icon:'logs'},{id:'more',label:'More',icon:'more'},
 ];
-function route() { const value=location.hash.slice(1) || 'overview'; return /^(overview|streams|usenet|logs|history|more|settings|library|media-info|background-tasks|addons|indexers|indexers\/[^/]+|stream\/[^/]+|provider\/[^/]+)$/.test(value) ? value : 'overview'; }
+function route() { const requested=location.hash.slice(1) || 'overview'; const value=requested==='stream-settings' ? 'settings' : requested; return /^(overview|streams|usenet|logs|history|more|settings|library|media-info|background-tasks|addons|indexers|indexers\/[^/]+|stream\/[^/]+|provider\/[^/]+)$/.test(value) ? value : 'overview'; }
 const go = (value:string) => { location.hash = value; };
 export default function App() {
   const [page,setPage]=useState(route);
@@ -109,6 +110,7 @@ const showStreams=()=>go('streams');
 function LivePages({page,settings,id,loginUrl,reportConnection,save}:{page:string;settings:Preferences;id:string;loginUrl:string;reportConnection:(value:string)=>void;save:(value:Preferences)=>void}) {
   const [usenetWindow,setUsenetWindow]=useState<UsenetWindow>('24h');
   const streams=useData<LiveStreams>(settings.baseUrl,'/streams/live',settings.pollingSeconds,true,true,settings.chartPoints);
+  const positions=useStreamPositions(settings.baseUrl, streams.data);
   const usenet=useData<LiveStats>(settings.baseUrl,'/usenet/live',settings.pollingSeconds,true,true,settings.chartPoints);
   const bandwidth=useData<BandwidthOverview>(settings.baseUrl,'/streams/bandwidth?window=30d',settings.historySeconds,page==='overview');
   const stats=useData<UsenetStatsOverview>(settings.baseUrl,`/usenet/stats?window=${page==='overview' ? '24h' : usenetWindow}`, settings.historySeconds,page==='overview' || page==='usenet' || page.startsWith('provider/'),false,1);
@@ -118,9 +120,9 @@ function LivePages({page,settings,id,loginUrl,reportConnection,save}:{page:strin
     const modes=[streams.mode,usenet.mode];
     reportConnection(modes.every(m=>m==='live') ? 'Live' : modes.includes('disconnected') ? 'Reconnecting' : modes.includes('polling') ? 'REST fallback' : 'Connecting');
   },[streams.mode,usenet.mode,reportConnection]);
-  if(page==='overview')return <Overview system={system} warnings={warnings} streams={streams} usenet={usenet} bandwidth={bandwidth} loginUrl={loginUrl} open={openStream} navigate={showStreams} stats={stats} settings={settings} save={save}/>;
-  if(page==='streams')return <StreamPage resource={streams} loginUrl={loginUrl} open={openStream} settings={settings}/>;
-  if(page.startsWith('stream/'))return <StreamDetailPage key={id} id={id} resource={streams} base={settings.baseUrl} loginUrl={loginUrl}/>;
+  if(page==='overview')return <Overview positions={positions} system={system} warnings={warnings} streams={streams} usenet={usenet} bandwidth={bandwidth} loginUrl={loginUrl} open={openStream} navigate={showStreams} stats={stats} settings={settings} save={save}/>;
+  if(page==='streams')return <StreamPage positions={positions} resource={streams} loginUrl={loginUrl} open={openStream} settings={settings}/>;
+  if(page.startsWith('stream/'))return <StreamDetailPage positions={positions} key={id} id={id} resource={streams} base={settings.baseUrl} loginUrl={loginUrl}/>;
   if(page==='usenet')return <UsenetPage resource={usenet} stats={stats} window={usenetWindow} changeWindow={setUsenetWindow} loginUrl={loginUrl} open={openProvider}/>;
   if(page.startsWith('provider/'))return <ProviderPage key={id} id={id} resource={usenet} stats={stats} window={usenetWindow} changeWindow={setUsenetWindow} loginUrl={loginUrl}/>;
   return null;

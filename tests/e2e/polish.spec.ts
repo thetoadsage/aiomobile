@@ -155,9 +155,10 @@ test('indexer sorting highlights concrete failures and diagnostics stay local',a
   const rows=[stats.indexers[0],{...stats.indexers[0],indexer:'Troubled indexer',grabs:20,successRate:.4,failed:12,fetchAuth:3,fetchLimited:2}];
   await page.route('**/usenet/stats?*',route=>route.fulfill({json:{success:true,data:{...stats,indexers:rows}}}));
   await page.goto('/mobile/#indexers');await expect(page.locator('.indexer-card').first().locator('h3')).toHaveText('Test indexer');
-  await page.getByLabel('Sort indexers').selectOption('successRate');await expect(page.locator('.indexer-card').first().locator('h3')).toHaveText('Troubled indexer');
+  await page.getByRole('combobox',{name:'Sort indexers'}).selectOption('successRate');await expect(page.locator('.indexer-card').first().locator('h3')).toHaveText('Test indexer');
+  await page.getByRole('button',{name:'Descending. Switch to ascending',exact:true}).click();await expect(page.locator('.indexer-card').first().locator('h3')).toHaveText('Troubled indexer');
   await expect(page.getByText('3 auth failures')).toBeVisible();await expect(page.getByText('2 rate limited')).toBeVisible();
-  await page.getByLabel('Sort indexers').selectOption('failed');await expect(page.locator('.indexer-card').first().locator('h3')).toHaveText('Troubled indexer');
+  await page.getByRole('combobox',{name:'Sort indexers'}).selectOption('failed');await page.getByRole('button',{name:'Ascending. Switch to descending',exact:true}).click();await expect(page.locator('.indexer-card').first().locator('h3')).toHaveText('Troubled indexer');
   await emit(page,'/streams/',liveStreams);await fail(page,'/streams/');
   await page.goto('/mobile/#settings');await page.getByRole('button',{name:'Show diagnostics'}).click();await expect(page.getByText('Streams · SSE disconnected')).toBeVisible();
   const log=await page.locator('.diagnostics').innerText();expect(log).not.toMatch(/test-target|stream-1|192\.0\.2|The\.Expanse|https?:\/\//);
@@ -192,7 +193,7 @@ test('PWA update waits for explicit action while viewing a stream',async({page})
 test('detail Back preserves the originating page and navigation resets scroll',async({page})=>{
   await page.goto('/mobile/');await page.getByRole('button',{name:/The.Expanse/}).click();
   await page.getByRole('button',{name:'Back',exact:true}).click();await expect(page.getByRole('heading',{name:'Overview',exact:true})).toBeVisible();
-  await page.getByRole('link',{name:'More',exact:true}).click();await page.getByRole('button',{name:/History & Bandwidth/}).click();await expect(page.getByText('1–20 of 25')).toBeVisible();
+  await page.getByRole('link',{name:'More',exact:true}).click();await page.getByRole('button',{name:/History & Bandwidth/}).click();await expect(page.getByRole('heading',{name:'History & bandwidth',exact:true})).toBeVisible();await expect(page.locator('.user-usage').first()).toBeVisible();
   await page.evaluate(()=>window.scrollTo(0,600));await page.getByRole('link',{name:'Usenet',exact:true}).click();
   await expect(page.getByRole('heading',{name:'Usenet',exact:true})).toBeVisible();await expect.poll(()=>page.evaluate(()=>scrollY)).toBe(0);
   await page.goto('/mobile/#settings');expect(await page.getByLabel('AIOStreams base URL').evaluate(el=>parseFloat(getComputedStyle(el).fontSize))).toBeGreaterThanOrEqual(16);

@@ -20,6 +20,7 @@ test('mobile screens display contract fields, detail charts and provider/indexer
   expect(errors).toEqual([]);
 });
 test('history uses q, transport and username filters and server pagination',async({page})=>{
+  await page.addInitScript(() => localStorage.setItem('aiomobile.preferences', JSON.stringify({ showAllTransfers:true })));
   await page.goto('/mobile/#streams');await expect(page.getByText('1–20 of 25')).toBeVisible();
   await page.getByRole('button',{name:'Next',exact:true}).click();await expect(page.getByText('21–25 of 25')).toBeVisible();
   await page.getByLabel('Search filename').fill('Episode.1.');await expect(page.getByText('1–1 of 1')).toBeVisible();
@@ -87,7 +88,7 @@ test('past stream ordering spans pages and bandwidth no longer requests stream h
   await page.getByRole('button',{name:'Previous',exact:true}).click();
   await expect(page.locator('.history-card h3').first()).toHaveText('Episode.25.mkv');
   await page.getByLabel('Search filename').fill('Episode.1.');
-  await expect(page.getByText('1–1 of 1')).toBeVisible();
+  await expect(page.locator('.history-card')).toHaveCount(1);
   await expect(page.locator('.history-card h3')).toHaveText('Episode.1.mkv');
   await page.goto('/mobile/#history');
   await expect(page.locator('.history-card')).toHaveCount(0);

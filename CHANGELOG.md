@@ -2,25 +2,29 @@
 
 ## Unreleased
 
-- Added per-indexer Success bars below Import outcomes, with selected-window percentages, successful grab counts, a shared 0–100% scale and explicit no-grab/unavailable states.
+### Streams
 
-- Indexer sorting separates the subject (Grabs, Success rate, Failures) from a labeled ascending/descending arrow button, immediately above the sortable cards.
+- Hide transfers below 64 KiB (shown as 64 KB in the app) from active cards, Overview counts and history by default. **More → Settings → Streams → Show all transfers** restores them, with a saved preference and a current-visit fallback when storage is unavailable. Throughput, bandwidth totals and server records are unchanged.
+- Keep the highest observed **Furthest file position** across Overview, stream cards and details during the current visit. It holds between reads and backward seeks, and resets on reload, instance change or session removal. Buffering and seeking can put it ahead of playback.
+- Open Streams with active sessions, followed by searchable, transport-filtered history with newest/oldest paging. Filtered history scans bounded batches and offers continuation through long runs of tiny transfers.
+- Remove the relative “Started … ago” line from stream cards; absolute start times remain in details.
 
-- Indexers adds an import completion summary, stacked OK/degraded/failed bar, and area-proportional grab-share tiles for the selected time window, with an always-visible share key and consistently sized tile names that take precedence over percentages in small tiles.
+### Overview and monitoring
 
-- Usenet Live connections uses separate cards with shaded headers for each priority group, labels Primary/Secondary/Backup tiers, and identifies shared load-balanced groups. Missing priority remains explicit.
+- Add compact live activity readings for visible sessions, client throughput and Usenet throughput, with feed freshness for both sources. Buffered/paused and idle sessions remain eligible for the count.
+- Hide and restore Overview sections while preserving their pins and order; restore defaults shows all sections.
+- Group Usenet connections into separate Primary, Secondary and Backup cards with configured priorities, shared load-balancing labels, layered connection capacity bars and per-connection speeds.
+- Add indexer import completion, stacked OK/degraded/failed outcomes, proportional grab-share tiles with a full name/value key, and individual success-rate bars. Success includes degraded imports; no-grab and unavailable states stay explicit.
+- Sort indexer detail cards by Grabs, Success rate or Failures with a separate ascending/descending control.
+- Add cumulative Usenet and global/per-user bandwidth graphs with touch and keyboard bucket inspection. Missing buckets remain distinct from recorded zeroes; Usenet errors use dated counts.
+- Dismiss health alerts on this device for up to 24 hours; new or increased failures bring them back.
+- Show AIOStreams version/build information with an explicit GitHub release check and clear incomplete/unavailable results.
+- Add Media Info enrichment coverage, source totals and richer video/audio/subtitle details, with compatibility states for older servers.
 
-- Streams opens with current sessions, followed by past-stream history with filename/user search, transport filters and newest/oldest paging. Removed introductory/capacity prose and relocated stream history out of History & Bandwidth.
+### Documentation
 
-- Compact live activity overview with aligned active-session, client throughput and Usenet throughput readings; buffered/paused and idle sessions remain included in the active count, and feed freshness covers both sources.
-
-- Overview customization can hide sections and add them back, preserving their saved pins and order; restore defaults shows every section again.
-- Compact Live connections panel above Usenet history, with layered in-use/open capacity bars, provider warning summaries and per-connection speed labels.
-
-- Cumulative step graphs for retained Usenet data/articles and global/per-user bandwidth, with touch and keyboard bucket inspection. Missing buckets remain distinct from recorded zeroes; Usenet errors use dated counts.
-- Device-local, per-instance health alert dismissal for up to 24 hours, with individual-source controls and rearming for new or increased failures.
-- Customizable AIOStreams version/build section with explicit, bounded GitHub release checks and clear unavailable/incomplete results.
-- Media Info enrichment coverage, metadata source totals and richer stored video/audio/subtitle details, with compatibility states for older servers.
+- Simplify the README with refreshed mobile screenshots, a short feature overview and direct setup links. Move detailed usage and troubleshooting into a user guide, and consolidate source installation steps in the deployment guide.
+- Update the API contract and validation notes for transfer filtering, held file positions and the Settings toggle.
 
 ## 0.1.0 — 2026-10-03
 

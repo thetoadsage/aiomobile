@@ -14,10 +14,11 @@ import { SystemCard, RecentWarnings } from '../components/InstanceHealth';
 import type { SystemMetrics } from '../api/monitoringTypes';
 import type { LogSnapshot } from '../api/logTypes';
 import { StreamList } from '../components/StreamList';
+import { visibleTransfers, type FilePositions } from '../lib/streams';
 import { LiveActivity } from '../components/LiveActivity';
 import { ServerVersion } from '../components/ServerVersion';
 
-export function Overview({ system, warnings, streams, usenet, bandwidth, loginUrl, open, navigate, stats, settings, save }: { system:Resource<SystemMetrics>; warnings:Resource<LogSnapshot>; streams: Resource<LiveStreams>; usenet: Resource<LiveStats>; bandwidth: Resource<BandwidthOverview>; loginUrl: string; open: (id: string) => void; navigate: () => void; stats: Resource<UsenetStatsOverview>; settings: Settings; save: (settings: Settings) => void }) {
+export function Overview({ positions, system, warnings, streams, usenet, bandwidth, loginUrl, open, navigate, stats, settings, save }: { positions: FilePositions; system:Resource<SystemMetrics>; warnings:Resource<LogSnapshot>; streams: Resource<LiveStreams>; usenet: Resource<LiveStats>; bandwidth: Resource<BandwidthOverview>; loginUrl: string; open: (id: string) => void; navigate: () => void; stats: Resource<UsenetStatsOverview>; settings: Settings; save: (settings: Settings) => void }) {
   const [customizing, setCustomizing] = useState(false);
   const [layoutError, setLayoutError] = useState('');
   const [layoutMessage, setLayoutMessage] = useState('');
@@ -26,6 +27,7 @@ export function Overview({ system, warnings, streams, usenet, bandwidth, loginUr
     try { const next = { ...settings, overview };saveSettings(next);save(next);setLayoutMessage('Overview layout saved.'); }
     catch { setLayoutError('Could not save the layout. Check your browser storage settings and try again.'); }
   };
+  const visibleStreams = visibleTransfers(streams.data?.streams ?? [], settings.showAllTransfers);
   const providers = usenet.data?.pool.providers ?? [];
   const health = providers.map(p => providerHealth(p, stats.data?.providers.find(row => row.id === p.id)));
   const active = health.filter(p => p.state === 'active').length;
@@ -38,8 +40,8 @@ export function Overview({ system, warnings, streams, usenet, bandwidth, loginUr
     system: <SystemCard resource={system} loginUrl={loginUrl}/>,
     warnings: <RecentWarnings resource={warnings} loginUrl={loginUrl}/>,
     streams: <Section title="Active streams" action={<button className="text-button" onClick={navigate}>View all <Icon name="arrow" size={16}/></button>}>
-        <StreamList streams={streams.data?.streams.slice(0, 3) ?? []} open={open}/>
-        {streams.data && !streams.data.streams.length && <Empty title="All quiet here">Active playback will appear here as soon as it starts.</Empty>}
+        <StreamList positions={positions} streams={visibleStreams.slice(0, 3)} open={open}/>
+        {streams.data && !visibleStreams.length && <Empty title="All quiet here">{settings.showAllTransfers ? 'Active playback will appear here as soon as it starts.' : 'Streams appear after 64 KB transferred. Enable Show all transfers under More → Settings to include smaller requests.'}</Empty>}
       </Section>,
     providers: <Section title="Usenet health" action={<a className="text-button" href="#usenet">Providers <Icon name="arrow" size={16}/></a>}>
           <Status resource={usenet} loginUrl={loginUrl}/>
@@ -54,7 +56,7 @@ export function Overview({ system, warnings, streams, usenet, bandwidth, loginUr
     {customizing && <><OverviewCustomizer layout={settings.overview} change={changeLayout}/>{layoutMessage && <p role="status" className="caption">{layoutMessage}</p>}{layoutError && <p role="alert" className="red">{layoutError}</p>}</>}
     <Status resource={streams} loginUrl={loginUrl}/>
     <Attention usenet={usenet} stats={stats} loginUrl={loginUrl} base={settings.baseUrl}/>
-    <LiveActivity streams={streams} usenet={usenet}/>
+    <LiveActivity streams={streams} usenet={usenet} showAllTransfers={settings.showAllTransfers}/>
     {!shown.length && <p className="notice">All sections are hidden. Choose Customize to add them back.</p>}
     <div className="overview-content">{shown.map(section => <div key={section.id} data-overview-section={section.id} className={`overview-section ${section.id === 'streams' ? 'overview-streams' : ''}`}>
       {section.pinned && <span className="pinned-section">Pinned section</span>}{sections[section.id]}

@@ -139,7 +139,6 @@ i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; backgrou
 .progress > div { height: 100%; border-radius: 4px; background: var(--blue); }
 .progress.green > div { background: var(--green); }
 .stream-foot { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
-.stream-start { display: block; margin-top: 8px; font-size: 12px; }
 .provider-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .provider-heading > div, .provider-heading > h3 { min-width: 0; }
 .provider-heading > svg { color: var(--muted); flex-shrink: 0; margin-top: 2px; }
@@ -404,7 +403,6 @@ button:active:not(:disabled), .button:active { transform: translateY(1px); }
 .compact .card:not(.log-list):not(.menu):not(.log-sheet):not(.modal) { padding: 14px; }
 .compact .main { padding-top: 20px; }
 .compact .section { margin-top: 24px; }
-.compact .stream-start { margin-top: 6px; }
 @media (hover: hover) and (pointer: fine) {
   button:hover:not(:disabled), .button:hover { background: var(--hover); }
   .primary:hover:not(:disabled) { background: var(--accent-hover); }

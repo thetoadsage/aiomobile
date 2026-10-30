@@ -1,156 +1,64 @@
+<div align="center">
+
+<img src="public/icons/icon-192.png" width="72" alt="AIOMobile icon">
+
 # AIOMobile
 
-A mobile dashboard for your existing [AIOStreams](https://github.com/Viren070/AIOStreams) instance. Monitor streams, Usenet providers, bandwidth, indexers and logs from your phone, or install it as a Home Screen app.
+**Your AIOStreams dashboard, made for your phone.**
 
-AIOMobile is a static frontend. It uses AIOStreams' existing admin login and APIs, with no separate backend or credentials to configure.
+Streams, Usenet, bandwidth and logs in an installable web app.<br>
+Connects to your existing [AIOStreams](https://github.com/Viren070/AIOStreams) instance using its admin login.
 
-The current build, `6cbd62111ef8bc0e` (2026-10-29), adds provider priority groups and backup cards, indexer import outcomes and grab-share tiles, per-indexer success bars, and independent sort subject/direction controls. It also includes Overview customization and searchable past stream sessions. See the [changelog](CHANGELOG.md) for the latest changes.
+[Get started](#get-started) · [User guide](docs/usage.md) · [Changelog](CHANGELOG.md)
 
-## Screenshots
+</div>
 
-Screenshots captured on October 29, 2026, using synthetic demo data, before the latest provider grouping and indexer chart additions. The header icon follows the selected theme.
+## A look inside
 
-| Overview · Sage | Streams · Sage | Usenet · Sage |
+| Overview | Streams | Usenet |
 | :---: | :---: | :---: |
-| <img src="docs/screenshots/readme/overview.png" width="240" alt="Overview with live activity and active streams in the Sage theme"> | <img src="docs/screenshots/readme/streams.png" width="240" alt="Current stream sessions with file position, followed by searchable stream history in the Sage theme"> | <img src="docs/screenshots/readme/usenet.png" width="240" alt="Usenet live throughput, recorded activity and provider history in the Sage theme"> |
+| <img src="docs/screenshots/readme/overview.png" width="240" alt="Overview with live activity, health and customizable sections"> | <img src="docs/screenshots/readme/streams.png" width="240" alt="Active streams with furthest file position and searchable history"> | <img src="docs/screenshots/readme/usenet.png" width="240" alt="Usenet throughput and provider connections grouped by priority"> |
 
 <details>
-<summary>More screens and themes</summary>
+<summary>Indexers and settings</summary>
 
-| Logs · Sage | Settings · Paper | History · Sage |
-| :---: | :---: | :---: |
-| <img src="docs/screenshots/readme/logs.png" width="240" alt="Live server logs with search and filtering in the Sage theme"> | <img src="docs/screenshots/readme/settings.png" width="240" alt="Theme picker and display preferences in the light Paper theme"> | <img src="docs/screenshots/readme/history.png" width="240" alt="Bandwidth totals, per-user trends and accounting-period usage in the Sage theme"> |
-
-| Recorded activity · Paper | Server version · Sage |
+| Indexers | Settings · Paper |
 | :---: | :---: |
-| <img src="docs/screenshots/readme/recorded-activity.png" width="240" alt="Cumulative Usenet usage graph with recorded bucket inspection"> | <img src="docs/screenshots/readme/server-version.png" width="240" alt="AIOStreams version, build details and explicit GitHub update check"> |
+| <img src="docs/screenshots/readme/indexers.png" width="240" alt="Indexer import outcomes, grab shares and success rates"> | <img src="docs/screenshots/readme/settings.png" width="240" alt="Light theme, appearance choices and Show all transfers setting"> |
 
 </details>
 
-## Install
+<sub>Captured October 30, 2026, with synthetic demo data.</sub>
 
-Serve AIOMobile at **`https://YOUR-AIOSTREAMS-HOST/mobile/`** on the same hostname as AIOStreams. Leave the app's **AIOStreams base URL** setting blank.
+## What you can do
 
-You need:
+- **See what’s streaming.** Live speeds, furthest observed file position and searchable session history. Tiny transfers stay hidden by default; show them in Settings.
+- **Watch Usenet activity.** Provider priority groups, live connections, throughput and retained usage charts.
+- **Check imports and health.** Indexer outcomes, success rates, addon health, background tasks and media information.
+- **Make it yours.** Five themes, customizable Overview sections and a Home Screen app on iPhone.
 
-- A working HTTPS AIOStreams instance with an admin account and the [required dashboard APIs](docs/api-contract.md).
-- Node.js **22.18 or newer** and npm to build the app.
-- Docker Compose and an existing Traefik setup for the steps below. For another reverse proxy, see the [deployment guide](deploy/INSTALL.md#other-reverse-proxies).
+Static frontend, no separate backend. Monitoring data stays out of the offline cache.
 
-### Docker + Traefik
+## Get started
 
-Run these commands on your Docker server. Alternatively, build on another machine and copy the prepared `deploy/` directory to the server before starting Compose.
+You need an HTTPS AIOStreams instance with admin access and the [supported dashboard APIs](docs/api-contract.md).
 
-```sh
-git clone https://github.com/thetoadsage/aiomobile.git
-cd aiomobile
-npm ci
-npm run build
+1. Follow the **[installation guide](deploy/INSTALL.md#install-from-source-with-traefik)** for Docker + Traefik, or [use another reverse proxy](deploy/INSTALL.md#other-reverse-proxies).
+2. Open **`https://YOUR-AIOSTREAMS-HOST/mobile/`**, leave **AIOStreams base URL** blank, and sign in.
+3. On iPhone, use Safari’s **Share → Add to Home Screen**. Sign in again inside the installed app if needed.
 
-mkdir -p deploy/site/mobile
-cp -R dist/. deploy/site/mobile/
-cp deploy/.env.example deploy/.env
-```
-
-Edit **`deploy/.env`** to match your existing AIOStreams and Traefik setup:
-
-```dotenv
-AIOSTREAMS_HOSTNAME=aio.example.com
-AIO_DOCKER_NETWORK=aio_network
-AIO_TLS_RESOLVER=letsencrypt
-AIO_AUTH_MIDDLEWARE=authelia@docker
-```
-
-Use only the hostname for `AIOSTREAMS_HOSTNAME`, without `https://` or `/mobile/`. The other values must name your existing Docker network, TLS resolver and authentication middleware.
-
-Start the standalone static service:
-
-```sh
-cd deploy
-docker compose -p aiomobile config --quiet
-docker compose -p aiomobile run --rm --no-deps aiomobile -t
-docker compose -p aiomobile up -d --no-deps aiomobile
-docker compose -p aiomobile ps
-```
-
-Open **`https://YOUR-AIOSTREAMS-HOST/mobile/`** and sign in with an AIOStreams admin account. If your proxy also uses Authelia, you may need to sign in there first.
-
-The new service handles only `/mobile/`. AIOStreams continues serving its own dashboard, APIs and login. Keep this deployment separate from your existing Compose project. No host port is published.
-
-## Use the app
-
-| Screen | What it does |
-| --- | --- |
-| Overview | Current activity, dismissible health alerts, System health, recent warnings and AIOStreams version/build information; show, hide, pin and reorder sections on this device. |
-| Streams | Inspect current streams and file position; browse past sessions with filename/user filters and newest/oldest paging. |
-| Usenet | Live throughput, retained activity trends, provider time windows/history, download capacity and segment-cache statistics. |
-| Logs | Follow server logs, search/filter, pause the view, copy or export entries. |
-| More | History & Bandwidth, Indexers, Addon health, Background tasks, Usenet Library, Media Info and Settings. |
-
-**Usenet Library** shows release availability, failures, files and recheck dates, with search and status filters. **Media Info** shows the current probe queue, recorded attempts and stored video/audio/subtitle tracks. These views are read-only; they do not initiate imports, rechecks or probes. Media Info requires an AIOStreams version with the newer dashboard routes and shows an unavailable message when they are missing.
-
-Media Info also shows the share of eligible stream results filled with metadata, when the server exposes these counters, plus source totals and richer track details. Coverage uses the last 24 hourly buckets on the reporting process, resets on restart and counts repeated results. Missing coverage is shown as unavailable; no eligible results is distinct from 0% coverage.
-
-Overview's **AIOStreams version** section shows the running version, channel, build time and commit when available. Expand **Build & updates** to check GitHub explicitly. Each check fetches one page of up to 100 releases for comparison with the running channel, without cookies, referrer or instance details. An incomplete list reports a lower-bound update count or an inconclusive result. **All releases** opens the upstream archive; this does not update the server or replace AIOMobile's own Update prompt.
-
-Dismiss **Needs attention** alerts with the X, or expand the list to dismiss individual sources. Dismissals stay on this device for up to 24 hours. New or increased failures and observed resolution followed by recurrence bring alerts back; dismissing an alert does not change server records.
-
-**Background tasks** shows the latest results, errors and scheduled runs under More. Opening this screen does not run tasks.
-
-**Streams** reports the latest read’s file position, including its starting offset. Buffering and seeking can make it differ from playback progress; it is unavailable between reads. The configured global stream cap and reported sessions with open reads are separate signals, and replica snapshots may omit reads.
-
-**Usenet** separates app-open live throughput from retained history. Its Live connections panel groups providers into separate Primary, Secondary and Backup cards, retaining configured priority numbers and labeling shared-priority groups as load balanced. Each provider row layers connections in use over open connections, with per-connection speed and tap-through provider details. Data and articles use filled, cumulative step graphs; tap the graph or use its slider to inspect a recorded bucket. Flat sections mean no additional activity recorded, and an absent bucket stays distinct from a recorded zero. Errors appear as dated counts. Provider details preserve the selected history window. Retention and resets limit coverage.
-
-**Indexers** shows the selected window’s import completion rate, OK/degraded/failed outcomes, proportional grab-share tiles with a full name/value key, and individual success-rate bars. Success includes degraded imports; indexers with no grabs have no success percentage. Below the charts, choose Grabs, Success rate or Failures and toggle Ascending/Descending to sort the detailed cards.
-
-**History & Bandwidth** adds cumulative global/per-user usage graphs. Past session details are on Streams. Graph totals sum retained buckets and can differ from summary totals at window boundaries. Select **Accounting period** to compare user usage with bandwidth limits; 24h/7d totals cover different windows. The configured monthly reset date determines the monthly period.
-
-**Addon health** shows retained preset requests, errors and average latency, with separate custom URL request counts. Choose 24h, 7d or All rollups. Collection and retention settings limit coverage; an empty window is not proof of healthy addons. Opening this screen does not call or test addons.
-
-In **Settings**, choose Sage, Midnight, Ember, Paper or Glacier, or follow device appearance. Adjust compact spacing, reduced motion and refresh preferences. The header icon follows your selected theme. Keep the base URL blank when using the recommended installation.
-
-Use the top-right refresh button or pull down from the top of a page to refresh. Live data updates automatically while the app is open. The throughput chart needs a few samples before it can draw a line.
-
-Stopping a stream interrupts that playback. Clearing logs removes the **entire server's retained log buffer**, even when filters are active. Both actions ask for confirmation.
-
-### Add to your iPhone Home Screen
-
-1. Open the `/mobile/` URL in Safari.
-2. Tap **Share → Add to Home Screen**.
-3. Enable **Open as Web App** if shown, then tap **Add**.
-4. Launch AIOMobile from the Home Screen. Sign in again if the installed app has a separate session.
-
-The installed icon uses the Flow design in Sage. If an icon update still shows the old image, remove and re-add the Home Screen shortcut.
-
-## Updates and troubleshooting
-
-Back up the deployed files before updating. Keep older fingerprinted JS/CSS assets available, and copy the new `index.html` and `sw.js` last. Static updates do not require restarting AIOStreams. Follow the [update and rollback guide](deploy/INSTALL.md#updating-an-existing-deployment).
-
-When the app offers **Update**, tap it to load the new version.
-
-- **Cannot connect:** check that AIOStreams is reachable and the app is served on the same hostname. Keep the base URL blank.
-- **Login or permission error:** sign in with an AIOStreams **admin** account, including inside the installed app if needed.
-- **No data while offline:** expected. Only the app shell is cached; monitoring data and logs are not stored for offline use.
-- **Feeds stop in the background:** expected. They reconnect when you return to the app.
-
-The app stores only connection/display preferences. It does not store passwords, API keys or session tokens, and does not automatically run provider tests, indexer grabs or instance configuration changes.
+Already installed? Follow the [update guide](deploy/INSTALL.md#updating-an-existing-deployment), then tap **Update** when the app prompts you.
 
 ## Development
+
+Requires Node.js **22.18+** and npm.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open `http://localhost:5173/mobile/`. To proxy an instance's API and login during development:
-
-```sh
-AIO_DEV_TARGET=https://aio.example.com npm run dev
-```
-
-Production login cookies are not shared with localhost, and secure cookies may require HTTPS. For a straightforward authentication test, use the same-origin deployment above.
-
-Checks and build:
+Open `http://localhost:5173/mobile/`. Set `AIO_DEV_TARGET=https://aio.example.com` to proxy an instance during development; production cookies are separate from localhost.
 
 ```sh
 npm run lint
@@ -160,6 +68,8 @@ npx playwright install chromium webkit
 npm run test:e2e
 ```
 
-The build writes `dist/`. Browser tests use synthetic local fixtures. See the [API contract](docs/api-contract.md), [validation notes](docs/validation.md) and [release packaging instructions](deploy/INSTALL.md#building-release-archives).
+The build writes `dist/`. Browser tests use synthetic fixtures. See [validation](docs/validation.md) and [release packaging](deploy/INSTALL.md#building-release-archives) for details.
 
-Licensed under [AGPL-3.0](LICENSE); see [NOTICE](NOTICE) for attribution.
+---
+
+[User guide & troubleshooting](docs/usage.md) · [API contract](docs/api-contract.md) · [AGPL-3.0 license](LICENSE) · [Attribution](NOTICE)

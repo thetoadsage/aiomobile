@@ -220,3 +220,44 @@ Explicitly authorized after local review. Deployed build 697e7bc3e307457d with r
 - The card counts all current sessions, including buffered/paused and idle sessions, matching the Active streams list. Transfer rates remain measured byte throughput and can be zero during buffered playback.
 - Build `76ab7650f7558608`: lint, typecheck/build, 65 unit tests and all 10 focused Chromium/WebKit checks passed. Browser checks cover buffered sessions, live throughput updates, empty/error states and responsive layouts.
 - Deployed static files with verified backup, retained assets and unchanged container/configuration state. Physical-device acceptance remains user testing.
+
+## Tiny transfer visibility — 2026-10-29
+
+- Build `7c0963ecd1e0488d`: lint, typecheck/build and all 72 unit tests pass. Eighty distinct focused Chromium/WebKit scenarios pass across the initial and corrected runs; the two initial failures were an uppercase test expectation for the existing lowercase paused label, corrected before the affected 14 checks passed again.
+- Covers the inclusive 64 KiB boundary, saved/legacy/storage-blocked preferences, active cards/Overview count/history consistency, paused sessions, threshold crossing through SSE and REST, filled history pages across probes, oldest/newest/search navigation, bounded 500-record scanning with continuation, authentication/background/cancellation, and unchanged API write behavior. Existing monitoring, usage, stop-confirmation, settings and service-worker checks remain passing.
+- Phone/desktop Sage/Paper captures at 320/390/1280 px were reviewed; the mechanical design scan returned no findings. Synthetic captures stay local and ignored. Physical iPhone interaction and authenticated production acceptance remain user checks.
+
+- Deployment follow-up: all 61 installed static files and the mobile root verified over trusted HTTPS with matching SHA256; live REST/SSE/history authentication redirects remain intact. Verified rollback backup and retained older assets; container/configuration state unchanged, without restart.
+
+## Stream settings under More — 2026-10-29
+
+- Build `e8a88f289abb89ff`: lint, typecheck/build, 72 unit tests and all 30 focused Chromium/WebKit checks pass. Saved visibility still governs active cards, Overview counts and history; the toggle is absent from Streams, accessible under More → Stream settings → Transfer visibility, survives reload and handles blocked storage. Back returns to More and the More tab stays selected.
+- Reviewed new section at 320/390/1280px in Sage and Paper; theme attributes explicitly asserted after correcting the screenshot fixture setup, with both responsive browser checks passing again. Mechanical scan clean. Physical iPhone/authenticated production acceptance remains operator testing.
+
+- Deployment verified all 62 installed static files and mobile root by SHA256 over trusted HTTPS; authentication redirects and container/configuration state are preserved. Rollback backup verified before publishing.
+
+## Held furthest file position — 2026-10-29
+
+- Build `8ea13714d58d9316`: lint, typecheck/build and 75 unit tests pass. All 44 focused Chromium/WebKit checks pass, plus the WebKit SSE test with batched detail captures at 320/390/1280px in Sage/Paper. Cards and details reviewed, mechanical scan clean.
+- Coverage holds 66% through missing reads/backward seeks, advances on a 70% observation, shares the value across Overview/cards/details and More navigation, preserves a known 0%, and resets after reload/new-session identity. Unit coverage additionally isolates simultaneous sessions and prunes ended IDs. No raw bytes-served ratio is substituted for position; retained percentages stay in memory only. Existing filtering, auth, stop confirmation, settings and static-only worker checks pass.
+- Physical iPhone/authenticated production acceptance remains user testing. Buffering, seeking and end probes can put the monotonic file position ahead of playback; the detail caption states that limitation.
+
+- Deployment verified all 63 installed files and root by SHA256 over trusted HTTPS, preserved REST/SSE/history authentication redirects, verified rollback backup and retained old assets; container/config state unchanged without restart.
+
+## Stream card start-age removal — 2026-10-29
+
+- Build `f032ed41cfe812be` removes the relative Started … ago card footer and unused styles. Lint, typecheck/build and all six targeted Chromium/WebKit responsive/held-position checks pass; narrow card capture reviewed and mechanical scan clean.
+- Deployment verified all 65 installed static files and root over trusted HTTPS by SHA256, with protected REST/SSE/history routes and unchanged container/configuration state. Rollback backup verified; older assets retained.
+
+## Transfer toggle in existing Settings — 2026-10-29
+
+- Build `9454c36574f9223a`: Show all transfers is in More → Settings → Streams. Removed the separate Stream settings menu/component; older hash links resolve to Settings. Immediate persistence/current-visit fallback preserved, and the settings draft stays synchronized without saving an unfinished instance URL or discarding other edits.
+- Lint, typecheck/build, all 75 unit tests and 48 focused Chromium/WebKit checks pass. Includes saved preference navigation/reload, base-URL draft isolation, later form save retaining the toggle, storage failure, existing settings/app flows and 320/390/1280px Sage/Paper captures. Mechanical scan clean; captures reviewed. Authenticated production/physical-device acceptance remains user testing.
+- Deployment verified all 66 installed static files and root over trusted HTTPS by SHA256; API authentication redirects and container/config state remain intact, with a verified rollback backup and retained old assets.
+
+## GitHub publication and documentation refresh — 2026-10-30
+
+- Lint, typecheck/production build and all 75 unit tests pass. The production build remains `9454c36574f9223a`; this publication adds documentation and test maintenance alongside the previously deployed stream improvements.
+- The full 212-case Chromium/WebKit run passed 206 checks and intentionally skipped one duplicate screenshot capture. Four failures came from older expectations for indexer sort direction and the relocation of history; these tests now exercise the current controls and bandwidth view. A concurrent screenshot run caused one trace-artifact directory failure. A sequential eight-check follow-up passed both corrected tests, the affected palette check and the refreshed README capture in both browsers, covering all 211 non-skipped cases across the runs.
+- Refreshed Overview, Streams, Usenet, Indexers and Paper Settings images use synthetic fixtures. Detailed usage and troubleshooting now live in `docs/usage.md`; source installation lives in `deploy/INSTALL.md`. Relative documentation links, anchors and image paths resolve.
+- Local `memory.md` remains Git-ignored and absent from the release packager's source/static file lists. This task publishes source and documentation to GitHub; physical-device and authenticated production acceptance remain user testing.

@@ -4,7 +4,7 @@ import { prepareMonitoring } from '../api/monitoring';
 import { diagnose, diagnosticSource } from '../lib/diagnostics';
 export interface Sample<T> { at: number; value: T }
 export interface Resource<T> { data?: T; error?: ApiError; updatedAt?: number; loading: boolean; refreshing?: boolean; mode: 'connecting' | 'live' | 'polling' | 'disconnected' | 'background'; samples: Sample<T>[]; refresh: () => void }
-export function useData<T>(base: string, path: string, seconds: number, enabled = true, live = false, points = 60, stopOn404 = false): Resource<T> {
+export function useData<T>(base: string, path: string, seconds: number, enabled = true, live = false, points = 60, stopOn404 = false, load: typeof request<T> = request): Resource<T> {
   const [state, setState] = useState<Omit<Resource<T>, 'refresh'>>({ loading: true, mode: 'connecting', samples: [] });
   const refreshAction = useRef<() => void>(() => {});
   const refresh = useCallback(() => refreshAction.current(), []);
@@ -38,10 +38,10 @@ export function useData<T>(base: string, path: string, seconds: number, enabled 
       setState(previous=>({...previous,refreshing:true}));
       const frameAtStart = frameSequence;
       try {
-        const data = await request<T>(base, path, controller.signal);
+        const data = await load(base, path, controller.signal);
         if (available() && frameSequence === frameAtStart) update(data, !live || source?.readyState === EventSource.OPEN ? 'live' : fallbackActive ? 'polling' : 'connecting');
       } catch (error) {
-        if (!controller.signal.aborted && (frameSequence === frameAtStart || error instanceof ApiError && [401,403].includes(error.status))) {
+        if (!controller.signal.aborted && !(error instanceof DOMException && error.name === 'AbortError') && (frameSequence === frameAtStart || error instanceof ApiError && [401,403].includes(error.status))) {
           const apiError = error instanceof ApiError ? error : new ApiError('Unable to update monitoring data.');
           authenticated = ![401,403].includes(apiError.status) && !(stopOn404 && apiError.status===404);
           diagnose([401,403].includes(apiError.status) ? 'Authentication failure' : 'API response failure', channel, apiError.status);
@@ -119,6 +119,6 @@ export function useData<T>(base: string, path: string, seconds: number, enabled 
       window.removeEventListener('aiomobile:refresh', manualRefresh);
       refreshAction.current = () => {};
     };
-  }, [base, path, seconds, enabled, live, points, stopOn404]);
+  }, [base, path, seconds, enabled, live, points, stopOn404, load]);
   return useMemo(() => ({ ...state, refresh }), [state, refresh]);
 }

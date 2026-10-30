@@ -1,7 +1,8 @@
 import { useLayoutEffect, useRef } from 'react';
 import type { LiveStreamSession } from '../api/types';
+import type { FilePositions } from '../lib/streams';
 import { StreamCard } from './StreamCard';
-export function StreamList({streams,open}:{streams:LiveStreamSession[];open:(id:string)=>void}) {
+export function StreamList({streams,open,positions: retainedPositions}:{positions:FilePositions;streams:LiveStreamSession[];open:(id:string)=>void}) {
   const list=useRef<HTMLDivElement>(null);
   const positions=useRef(new Map<string,number>());
   const ids=JSON.stringify(streams.map(stream=>stream.id));
@@ -22,5 +23,5 @@ export function StreamList({streams,open}:{streams:LiveStreamSession[];open:(id:
     positions.current=next;
     return()=>animations.forEach(animation=>animation.cancel());
   },[ids]);
-  return <div ref={list} className="stack">{streams.map(stream=><div data-stream-id={stream.id} key={stream.id}><StreamCard stream={stream} open={open}/></div>)}</div>;
+  return <div ref={list} className="stack">{streams.map(stream=><div data-stream-id={stream.id} key={stream.id}><StreamCard furthestPosition={retainedPositions.get(stream.id)?.percent} stream={stream} open={open}/></div>)}</div>;
 }

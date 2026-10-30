@@ -28,7 +28,7 @@ A small mobile monitoring frontend over AIOStreams' existing admin dashboard end
 
 - Prefer serving at `/mobile/` on the existing AIOStreams origin, with the base URL preference left blank. Sign-in delegates to the existing AIOStreams login and requires admin access.
 - Live streams, Usenet statistics, and logs use SSE with bounded REST fallback. Historical views use periodic REST refresh. Hidden/offline handling limits background traffic.
-- Primary navigation is Overview, Streams, Usenet, Logs, and More. More contains History & Bandwidth, Indexers, Addon health, Background tasks, Usenet Library, Media Info, and Settings; Streams opens with current sessions, followed by searchable, transport-filtered, paginated past streams with newest/oldest sorting. History & Bandwidth contains usage totals and charts only; stream and provider details are secondary screens.
+- Primary navigation is Overview, Streams, Usenet, Logs, and More. More contains History & Bandwidth, Indexers, Addon health, Background tasks, Usenet Library, Media Info, and Settings (including a Streams section with the saved transfer visibility toggle); Streams opens with current sessions, followed by searchable, transport-filtered, paginated past streams with newest/oldest sorting. History & Bandwidth contains usage totals and charts only; stream and provider details are secondary screens.
 - The installed PWA may need its own sign-in if iOS separates its session context. The cached static shell opens offline; live monitoring needs a connection.
 - Existing implementation: React, TypeScript, and Vite; React and React DOM are the only runtime dependencies. Hash routing supports static hosting without server-side page routes.
 

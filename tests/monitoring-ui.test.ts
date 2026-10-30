@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { collectAttention } from '../src/lib/attention';
 import { defaultOverview, moveOverview, normalizeOverview, orderedOverview } from '../src/lib/overview';
-import { filePosition, selectStreams } from '../src/lib/streams';
+import { filePosition, retainFilePositions, selectStreams } from '../src/lib/streams';
 import { liveStreams, liveUsenet, stats } from './fixtures';
 
 describe('file position across range reads', () => {
@@ -24,6 +24,36 @@ describe('file position across range reads', () => {
     expect(filePosition({...stream,start:NaN})).toBeUndefined();
     expect(filePosition({...stream,start:-1})).toBeUndefined();
     expect(filePosition({...stream,currentBytes:Infinity})).toBeUndefined();
+  });
+});
+
+describe('furthest observed file position', () => {
+  const stream = { ...liveStreams.streams[0], size: 1000, activeReads: 1, start: 600, currentBytes: 60 };
+  it('holds through closed reads and backward seeks, then advances on a higher observation', () => {
+    let positions = retainFilePositions(new Map(), [stream]);
+    expect(positions.get(stream.id)?.percent).toBe(66);
+    for (const read of [{ activeReads: 0, start: 0, currentBytes: 0 }, { activeReads: 1, start: 100, currentBytes: 0 }, { size: 0 }]) {
+      positions = retainFilePositions(positions, [{ ...stream, ...read }]);
+      expect(positions.get(stream.id)?.percent).toBe(66);
+    }
+    positions = retainFilePositions(positions, [{ ...stream, start: 700, currentBytes: 0 }]);
+    expect(positions.get(stream.id)?.percent).toBe(70);
+    positions = retainFilePositions(positions, [{ ...stream, start: 990, currentBytes: 20 }]);
+    expect(positions.get(stream.id)?.percent).toBe(100);
+  });
+  it('keeps zero as a valid observation and leaves never-observed sessions unavailable', () => {
+    let positions = retainFilePositions(new Map(), [{ ...stream, start: 0, currentBytes: 0 }]);
+    positions = retainFilePositions(positions, [{ ...stream, activeReads: 0 }]);
+    expect(positions.get(stream.id)?.percent).toBe(0);
+    expect(retainFilePositions(new Map(), [{ ...stream, activeReads: 0 }]).has(stream.id)).toBe(false);
+  });
+  it('isolates sessions, prunes ended ones, and resets if a session ID has a different start time', () => {
+    const second = { ...stream, id: 'another-session', start: 200, currentBytes: 0 };
+    const initial = retainFilePositions(new Map(), [stream, second]);
+    expect(initial.get(second.id)?.percent).toBe(20);
+    expect(retainFilePositions(initial, [second]).has(stream.id)).toBe(false);
+    expect(retainFilePositions(initial, [{ ...stream, startedAt: stream.startedAt + 1, activeReads: 0 }]).has(stream.id)).toBe(false);
+    expect(retainFilePositions(retainFilePositions(initial, []), [{ ...stream, activeReads: 0 }]).size).toBe(0);
   });
 });
 
