@@ -109,6 +109,28 @@
   --hero-line: #b8d0e4;
   --control-line: #718ba3;
 }
+[data-theme="oled"] {
+  color-scheme: dark;
+  --background: #000000;
+  --card: #121212;
+  --surface-raised: #232323;
+  --surface-inset: #0a0a0a;
+  --line: #363636;
+  --text: #f2f2f2;
+  --muted: #aaaaaa;
+  --accent: #dedede;
+  --on-accent: #121212;
+  --accent-soft: #2b2b2b;
+  --green: #a4d4aa;
+  --green-soft: #1b2b1e;
+  --orange: #efc083;
+  --orange-soft: #33271b;
+  --red: #ffa4ae;
+  --red-soft: #352127;
+  --hero: #1a1a1a;
+  --hero-line: #414141;
+  --control-line: #7a7a7a;
+}
 
 :root, [data-theme] {
   /* Keep existing chart tone names compatible with the shared accent. */
@@ -124,6 +146,21 @@
   --shadow: #060c0924;
   --overlay: #060c09bd;
 }
+[data-theme="oled"] {
+  --shadow: #00000024;
+  --overlay: #000000bd;
+}
+
+[data-theme="oled"] .indexer-outcomes {
+  --share-0: #505050;
+  --share-1: #303030;
+  --share-2: #5a5a5a;
+  --share-3: #393939;
+  --share-4: #484848;
+  --share-5: #252525;
+}
+[data-theme="oled"] .share-tile-content { color: var(--text); }
+[data-theme="oled"] .share-tile-content small { color: var(--accent); }
 
 .theme-picker { border: 0; padding: 0; margin: 0; min-width: 0; }
 .theme-picker legend { color: var(--text); font-size: 15px; font-weight: 600; }

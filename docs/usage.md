@@ -50,7 +50,7 @@ Search filters both charts and the detailed cards. Charts include all matching a
 
 ## Preferences and refresh
 
-In **Settings**, choose Sage, Midnight, Ember, Paper or Glacier, or follow device appearance. Adjust compact spacing, reduced motion and refresh preferences. The header icon follows your selected theme. Keep the base URL blank when using the recommended installation.
+In **Settings**, choose Sage, Midnight, Ember, Paper, Glacier, or OLED Black, or follow device appearance. Adjust compact spacing, reduced motion and refresh preferences. The header icon follows your selected theme. Keep the base URL blank when using the recommended installation.
 
 Use the top-right refresh button or pull down from the top of a page to refresh. Live data updates automatically while the app is open. The throughput chart needs a few samples before it can draw a line.
 

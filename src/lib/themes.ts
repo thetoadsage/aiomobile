@@ -4,6 +4,7 @@ export const themes = [
   { id: 'ember', name: 'Ember', description: 'Warm graphite & apricot', scheme: 'dark' },
   { id: 'paper', name: 'Paper', description: 'Warm white & forest', scheme: 'light' },
   { id: 'glacier', name: 'Glacier', description: 'Cool white & ocean blue', scheme: 'light' },
+  { id: 'oled', name: 'OLED Black', description: 'Pure black & soft white', scheme: 'dark' },
 ] as const;
 export type ThemeId = typeof themes[number]['id'];
 export type ThemePreference = ThemeId | 'system';
