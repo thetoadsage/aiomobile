@@ -58,7 +58,7 @@ export function Overview({ positions, system, warnings, streams, usenet, bandwid
     <Attention usenet={usenet} stats={stats} loginUrl={loginUrl} base={settings.baseUrl}/>
     <LiveActivity streams={streams} usenet={usenet} showAllTransfers={settings.showAllTransfers}/>
     {!shown.length && <p className="notice">All sections are hidden. Choose Customize to add them back.</p>}
-    <div className="overview-content">{shown.map(section => <div key={section.id} data-overview-section={section.id} className={`overview-section ${section.id === 'streams' ? 'overview-streams' : ''}`}>
+    <div className="overview-content">{shown.map(section => <div key={section.id} data-overview-section={section.id} className={`overview-section ${section.id === 'streams' ? 'overview-streams' : ''} ${section.id === 'system' || section.id === 'warnings' ? 'compact-overview-section' : ''}`}>
       {section.pinned && <span className="pinned-section">Pinned section</span>}{sections[section.id]}
     </div>)}</div>
   </>;

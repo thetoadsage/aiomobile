@@ -50,6 +50,7 @@ function LogSession({settings,query,filters,loginUrl,discoverModules,reportConne
   const [announcement,setAnnouncement]=useState('');
   const [newCount,setNewCount]=useState(0);
   const scroller=useRef<HTMLDivElement>(null);
+  const listSize=useRef({ width: 0, height: 0 });
   const follow=useRef(true);
   const anchor=useRef<{seq:string;offset:number} | undefined>(undefined);
   const lastSeen=useRef(0);
@@ -57,6 +58,17 @@ function LogSession({settings,query,filters,loginUrl,discoverModules,reportConne
   const isAuth=[resource.error,actionError].some(error=>error && [401,403].includes(error.status));
   useEffect(()=>()=>exporter.current?.abort(),[]);
   useEffect(()=>{const names=[...new Set(resource.rows.flatMap(row=>row.module ? [row.module] : []))].sort();if(names.length)discoverModules(names);},[resource.rows,discoverModules]);
+  useLayoutEffect(() => {
+    const list = scroller.current;
+    if (!list) return;
+    listSize.current = { width: list.clientWidth, height: list.clientHeight };
+    const observer = new ResizeObserver(() => {
+      listSize.current = { width: list.clientWidth, height: list.clientHeight };
+      if (follow.current && !resource.paused) list.scrollTop = list.scrollHeight;
+    });
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, [resource.paused]);
   useLayoutEffect(()=>{
     const el=scroller.current;if(!el)return;
     const fresh=resource.rows.filter(row=>row.seq>lastSeen.current).length;
@@ -73,6 +85,8 @@ function LogSession({settings,query,filters,loginUrl,discoverModules,reportConne
   const pause=()=>{if(resource.paused){follow.current=true;setNewCount(0);}resource.togglePause();};
   const scrolled=()=>{
     const el=scroller.current;if(!el)return;
+    // WebKit can emit a scroll event from reflow before the resize is delivered.
+    if (el.clientWidth !== listSize.current.width || el.clientHeight !== listSize.current.height) return;
     follow.current=el.scrollHeight-el.scrollTop-el.clientHeight<48;
     if(follow.current){anchor.current=undefined;setNewCount(0);return;}
     const top=el.getBoundingClientRect().top;let low=0,high=el.children.length-1;

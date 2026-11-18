@@ -11,6 +11,9 @@
 
 ### Overview and monitoring
 
+- Keep the Home Screen tab bar anchored while the display changes size and content scrolls.
+- Pack visible Overview tiles into regular rows on wide displays, including iPhone Duo in landscape.
+- Give Logs more reading space on short landscape screens and pair System with Recent warnings on mid-width portrait screens such as the iPhone Duo inner display. Keep navigation and dialogs clear of side safe areas.
 - Add average addon response times as ranked horizontal bars with a shared millisecond axis, inline values and a View data table.
 - Add an Error rate by addon section matching the response-time chart: solid bars, inline percentages, shared 0–100% axis and a View data table with error/request counts. Highest error rate first for the selected period and search.
 - Add compact live activity readings for visible sessions, client throughput and Usenet throughput, with feed freshness for both sources. Buffered/paused and idle sessions remain eligible for the count.
