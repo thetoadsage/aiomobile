@@ -33,6 +33,11 @@ test('response bars use a shared millisecond scale and retain readable labels on
   await chart.getByRole('button',{name:'Hide data',exact:true}).click();
   await expect(chart.getByRole('table')).toBeHidden();
   const errorChart=page.locator('.addon-error-rates');
+  await expect(errorChart.locator('.response-addon-name').first()).toContainText('Atlas');
+  await expect(errorChart.getByRole('meter',{name:'Atlas error count',exact:true})).toHaveAttribute('aria-valuenow','35');
+  await expect(errorChart.locator('.response-addon-name').first()).toContainText('35 / 100 errors · 35.0%');
+  await errorChart.getByRole('button',{name:'Error rate',exact:true}).click();
+  await expect(errorChart.locator('.response-addon-name').first()).toContainText('Missing timing');
   const errorMeter=errorChart.getByRole('meter',{name:'Atlas error rate',exact:true});
   await expect(errorMeter).toHaveAttribute('aria-valuenow','35');
   await expect(errorMeter).toHaveAttribute('aria-valuemax','100');
@@ -73,8 +78,11 @@ test('response chart follows period and search, independently of card sorting, a
   await page.getByRole('combobox',{name:'Sort addons',exact:true}).selectOption('requests');
   await expect(page.locator('.addon-card').first().locator('h3')).toHaveText('Long addon name with extra search configuration');
   await expect(chart.locator('.response-addon-name').first()).toHaveText('Atlas');
+  const impact = page.locator('.addon-error-rates');
+  await impact.getByRole('button',{name:'Error rate',exact:true}).click();
   await page.getByRole('button',{name:'7D',exact:true}).click();
   await expect(chart).toContainText('Last 7d');
+  await expect(impact.getByRole('button',{name:'Error rate',exact:true})).toHaveAttribute('aria-pressed','true');
   await expect(chart.locator('.response-addon-name').first()).toHaveText('Northstar');
   await expect(chart.getByRole('meter',{name:'Atlas average response time',exact:true})).toHaveAttribute('aria-valuenow','200');
   await page.getByRole('searchbox',{name:'Search addons',exact:true}).fill('Atlas');

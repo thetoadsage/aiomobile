@@ -11,6 +11,8 @@
 
 ### Overview and monitoring
 
+- Add a tappable seven-day bandwidth activity strip, switch addon rankings between recorded error count and rate, and filter the Usenet Library from an availability breakdown.
+
 - Keep the Home Screen tab bar anchored while the display changes size and content scrolls.
 - Pack visible Overview tiles into regular rows on wide displays, including iPhone Duo in landscape.
 - Give Logs more reading space on short landscape screens and pair System with Recent warnings on mid-width portrait screens such as the iPhone Duo inner display. Keep navigation and dialogs clear of side safe areas.

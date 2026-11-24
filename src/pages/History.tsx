@@ -7,6 +7,7 @@ import { periodLabel } from '../lib/usage';
 import { Empty, Metric, Section, Status } from '../components/UI';
 import { RecordedChart } from '../components/RecordedChart';
 import { UsageGauge } from '../components/UsageGauge';
+import { BandwidthActivity } from '../components/BandwidthActivity';
 const seriesKey = (row: BandwidthOverview['seriesByUser'][number]) => JSON.stringify([row.username,row.aggregated === true]);
 const seriesLabel = (row: BandwidthOverview['seriesByUser'][number]) => row.aggregated ? 'Other users (combined)' : row.username || 'Unidentified streams';
 export function History({ settings, loginUrl }: { settings:Settings; loginUrl:string }) {
@@ -23,6 +24,7 @@ export function History({ settings, loginUrl }: { settings:Settings; loginUrl:st
     <Status resource={bandwidth} loginUrl={loginUrl}/>
     <div className="metrics"><Metric label="Total bandwidth" value={bytes(data?.total)} icon="activity"/><Metric label="Usenet" value={bytes(data?.byTransport.usenet)} icon="download" tone="green"/><Metric label="Proxy" value={bytes(data?.byTransport.proxy)} icon="streams"/><Metric label="Period usage" value={bytes(data?.periodTotal)} icon="history" hint={data?.globalLimit ? `of ${bytes(data.globalLimit)} global limit` : data ? 'No global limit configured' : 'Waiting for usage'}/></div>
     {data && <div className="card period-usage"><strong>{periodLabel(data)}</strong><p className="caption">Since {date(data.periodStart)} · global limit accounting</p><UsageGauge used={data.periodTotal} limit={data.globalLimit} label="Global bandwidth used this accounting period"/></div>}
+    {bandwidthWindow === '7d' && data?.window === '7d' && <BandwidthActivity data={data}/>}
     <Section title="Usage over time" action={<span className="muted">{windowLabel}</span>}><div className="card chart-card">{data && <RecordedChart points={data.series.map(p=>({at:p.bucketMs,value:p.bytes}))} label="Data served" bucketMs={data.bucketMs} from={data.sinceMs} to={data.generatedAt}/>}</div></Section>
     <Section title="User bandwidth trends" action={<span className="muted">{windowLabel}</span>}>
       {selectedSeries && data ? <div className="card chart-card user-trends"><div className="filters"><label>User or group<select value={seriesKey(selectedSeries)} onChange={event => setSelectedUser(event.target.value)}>{data.seriesByUser.map(row => <option key={seriesKey(row)} value={seriesKey(row)}>{seriesLabel(row)}</option>)}</select></label></div><RecordedChart points={selectedSeries.series.map(point => ({at:point.bucketMs,value:point.bytes}))} label={`Data served: ${seriesLabel(selectedSeries)}`} bucketMs={data.bucketMs} from={data.sinceMs} to={data.generatedAt}/><p className="caption">{selectedSeries.aggregated ? 'Combined activity for users outside the server’s individual series limit.' : 'Recorded bandwidth for this user in the selected window.'} Retained bucket totals may differ from summary/accounting totals.</p></div> : data && <Empty title="No user trend samples">The server has no retained per-user buckets in this window.</Empty>}

@@ -12,6 +12,27 @@ test.beforeEach(async ({ context, page }) => {
   await page.route('**/streams/bandwidth?*',route=>route.fulfill({json:{success:true,data:{...bandwidth,window:'24h',generatedAt:end,sinceMs:end-24*hour,bucketMs:hour,series:sparse.map(point=>({bucketMs:point.bucketMs,bytes:point.bytes})),seriesByUser:[{username:'alex',series:sparse.map(point=>({bucketMs:point.bucketMs,bytes:point.bytes}))}]}}}));
 });
 
+test('weekly bandwidth activity shows UTC dates, missing buckets, measured zero and the partial day', async ({ page }) => {
+  const first = Date.UTC(2026, 9, 8);
+  const day = 24 * hour;
+  await page.route('**/streams/bandwidth?window=7d', route => route.fulfill({json:{success:true,data:{
+    ...bandwidth, window:'7d', generatedAt:end, sinceMs:first, bucketMs:day,
+    series:[{bucketMs:first,bytes:0},{bucketMs:first+6*day,bytes:30*1024**3}],
+  }}}));
+  await page.setViewportSize({width:320,height:850});
+  await page.goto('/mobile/#history');
+  await page.getByRole('button',{name:'7D',exact:true}).click();
+  const activity = page.locator('.bandwidth-activity');
+  await expect(activity.getByRole('button')).toHaveCount(7);
+  await expect(activity.locator('output')).toContainText('30 GB served · Partial day');
+  await activity.getByRole('button',{name:/Oct 8 UTC, 0 B served/}).press('Enter');
+  await expect(activity.locator('output')).toContainText('0 B served');
+  await activity.getByRole('button',{name:/Oct 9 UTC, No recorded bucket/}).click();
+  await expect(activity.locator('output')).toContainText('No recorded bucket');
+  await expect(page.locator('.recorded-chart').first()).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
 test('sparse historical data accumulates without fabricating missing or zero buckets', async ({ page }) => {
   const writes:string[]=[];
   page.on('request',request=>{if(request.url().includes('/api/') && request.method()!=='GET')writes.push(request.url());});

@@ -55,7 +55,7 @@ const server=createServer(async(req,res)=> {
     if(url.pathname==='/api/v1/dashboard/usenet/library'){
       const q=(url.searchParams.get('q') || '').toLowerCase();const statuses=(url.searchParams.get('statuses') || '').split(',').filter(Boolean);
       const rows=librarySnapshot.entries.filter(r=>(!q || (r.name || '').toLowerCase().includes(q)) && (!statuses.length || statuses.includes(r.status)));
-      const offset=Number(url.searchParams.get('offset') || 0);json({total:rows.length,entries:rows.slice(offset,offset+20)});return;
+      const offset=Number(url.searchParams.get('offset') || 0);const limit=Number(url.searchParams.get('limit') || 20);json({total:rows.length,entries:rows.slice(offset,offset+limit)});return;
     }
     if(url.pathname==='/api/v1/dashboard/media-info'){json(mediaSummary);return;}
     if(url.pathname==='/api/v1/dashboard/media-info/live'){json(mediaLive);return;}
